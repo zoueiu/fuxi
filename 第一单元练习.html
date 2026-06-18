@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三年级科学 · 第一单元 · 方向大挑战</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --red: #e74c3c; --red-light: #fce4e4; --red-dark: #c0392b;
+  --blue: #3498db; --blue-light: #dbeafe; --blue-dark: #2471a3;
+  --gold: #f39c12; --green: #27ae60;
+  --bg: #0f172a; --card: rgba(255,255,255,0.06); --text: #e2e8f0; --text-light: #94a3b8;
+}
+body { font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif; background: var(--bg); overflow: hidden; user-select: none; -webkit-user-select: none; }
+
+/* Screen system */
+.screen { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; }
+.screen.active { display: flex; }
+
+/* Title */
+#screenTitle { background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460); }
+.title-icon { font-size: 90px; margin-bottom: 16px; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+#screenTitle h1 { font-size: 50px; font-weight: 900; background: linear-gradient(135deg, #f39c12, #e74c3c, #3498db); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+#screenTitle p { color: var(--text-light); font-size: 20px; margin: 10px 0 30px; }
+.btn-start { padding: 16px 56px; font-size: 24px; font-weight: 700; background: linear-gradient(135deg, #e74c3c, #f39c12); color: #fff; border: none; border-radius: 50px; cursor: pointer; transition: all 0.3s; letter-spacing: 2px; }
+.btn-start:hover { transform: scale(1.06); box-shadow: 0 8px 30px rgba(231,76,60,0.4); }
+
+/* Score board */
+.score-board { position: fixed; top: 0; left: 0; right: 0; display: flex; justify-content: center; padding: 12px 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); z-index: 50; }
+.score-total { display: flex; align-items: center; gap: 10px; padding: 8px 28px; border-radius: 20px; font-size: 20px; font-weight: 700; background: rgba(243,156,18,0.2); color: var(--gold); border: 2px solid rgba(243,156,18,0.3); }
+.score-num { font-size: 28px; font-weight: 900; min-width: 40px; text-align: center; }
+
+
+/* Game screens background */
+#screenMC, #screenTF, #screenFB, #screenScene { background: linear-gradient(180deg, #1a1a2e, #16213e); padding: 100px 20px 20px; justify-content: flex-start; }
+.round-badge { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); padding: 6px 20px; background: rgba(255,255,255,0.08); border-radius: 20px; color: var(--text-light); font-size: 14px; z-index: 50; }
+
+/* Question card */
+.q-card { width: 100%; max-width: 900px; background: var(--card); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 28px; }
+.q-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.q-round { color: #f39c12; font-size: 16px; font-weight: 700; }
+.q-status { display: flex; align-items: center; gap: 14px; }
+.q-timer { font-size: 30px; font-weight: 900; color: #e74c3c; min-width: 70px; text-align: center; }
+.q-timer.warning { animation: blink 0.5s infinite; }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+.q-num { color: var(--text-light); font-size: 15px; }
+.q-type-tag { display: inline-block; padding: 3px 14px; background: rgba(155,89,182,0.3); color: #c39bdb; border-radius: 10px; font-size: 13px; margin-bottom: 14px; }
+.q-type-tag.tag-tf { background: rgba(46,204,113,0.3); color: #6ddb9e; }
+.q-type-tag.tag-fb { background: rgba(52,152,219,0.3); color: #7ab8e8; }
+.q-type-tag.tag-scene { background: rgba(243,156,18,0.3); color: #f5c160; }
+.q-text { font-size: 22px; color: var(--text); line-height: 1.7; margin-bottom: 22px; }
+
+/* Option buttons */
+.opts { display: grid; gap: 12px; }
+.opt-btn { padding: 16px 22px; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.12); border-radius: 14px; color: #fff; font-size: 18px; text-align: left; cursor: pointer; transition: all 0.25s; }
+.opt-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(102,126,234,0.5); transform: translateX(4px); }
+.opt-btn .opt-label { display: inline-block; width: 36px; height: 36px; line-height: 36px; background: rgba(102,126,234,0.3); color: #8899f0; border-radius: 10px; text-align: center; font-weight: 900; margin-right: 10px; }
+.opt-btn.correct { background: rgba(39,174,96,0.2); border-color: #27ae60; color: #6ddb9e; }
+.opt-btn.wrong { background: rgba(231,76,60,0.2); border-color: #e74c3c; color: #e88c8c; }
+
+/* TF buttons */
+.tf-area { display: flex; gap: 20px; justify-content: center; }
+.tf-btn { width: 180px; height: 80px; border-radius: 16px; border: 3px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.04); color: #fff; font-size: 28px; font-weight: 900; cursor: pointer; transition: all 0.3s; }
+.tf-btn:hover { transform: scale(1.05); }
+.tf-btn.true-btn:hover { background: rgba(39,174,96,0.25); border-color: #27ae60; }
+.tf-btn.false-btn:hover { background: rgba(231,76,60,0.25); border-color: #e74c3c; }
+.tf-btn.correct { background: rgba(39,174,96,0.3); border-color: #27ae60; }
+.tf-btn.wrong { background: rgba(231,76,60,0.3); border-color: #e74c3c; }
+
+/* Feedback & nav */
+.feedback { text-align: center; font-size: 20px; margin-top: 18px; min-height: 30px; font-weight: 700; }
+.feedback.correct { color: #6ddb9e; }
+.feedback.wrong { color: #e88c8c; }
+.nav-row { display: flex; gap: 14px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+.btn-nav { padding: 12px 32px; border: none; border-radius: 25px; font-size: 17px; cursor: pointer; font-weight: 700; transition: all 0.3s; color: #fff; }
+.btn-next { background: linear-gradient(135deg, #667eea, #764ba2); }
+.btn-next:hover { transform: scale(1.05); }
+.btn-reveal { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); }
+.btn-reveal:hover { background: rgba(255,255,255,0.18); }
+.btn-ok { background: #27ae60; }
+.btn-ok:hover { background: #2ecc71; }
+.btn-no { background: #e74c3c; }
+.btn-no:hover { background: #ec5c4c; }
+
+/* Fill in blank reveal */
+.blank-reveal { text-align: center; margin-top: 16px; font-size: 22px; color: #f39c12; font-weight: 700; }
+
+/* Scene question */
+.scene-panel { display: flex; flex-wrap: wrap; gap: 20px; margin: 16px 0; }
+.scene-img { flex: 1; min-width: 280px; min-height: 180px; background: rgba(255,255,255,0.04); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 60px; border: 1px solid rgba(255,255,255,0.08); }
+
+/* Round complete */
+#screenRC { background: linear-gradient(135deg, #1a1a2e, #16213e); }
+#screenRC h2 { font-size: 36px; color: #fff; margin-bottom: 10px; }
+#screenRC .round-stats { color: var(--text-light); font-size: 18px; margin-bottom: 24px; }
+.score-show { margin-bottom: 30px; }
+.score-show .s-box { padding: 24px 50px; border-radius: 20px; text-align: center; min-width: 200px; background: rgba(243,156,18,0.15); border: 2px solid rgba(243,156,18,0.3); }
+.score-show .s-box .s-name { font-size: 18px; color: var(--text-light); }
+.score-show .s-box .s-num { font-size: 56px; font-weight: 900; margin-top: 6px; color: var(--gold); }
+
+/* Final */
+#screenFinal { background: linear-gradient(135deg, #1a1a2e, #16213e); }
+#screenFinal .winner-icon { font-size: 100px; margin-bottom: 10px; animation: float 2s ease-in-out infinite; }
+#screenFinal h2 { font-size: 42px; color: #fff; margin-bottom: 8px; }
+#screenFinal .final-scores { margin: 20px 0; }
+.fs-box { text-align: center; }
+.fs-box .fs-icon { font-size: 40px; margin-bottom: 6px; }
+.fs-box .fs-name { color: var(--text-light); font-size: 16px; }
+.fs-box .fs-num { font-size: 56px; font-weight: 900; color: var(--gold); }
+
+/* Confetti */
+canvas#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 100; }
+
+/* Scene grid */
+.scene-grid { display: grid; gap: 10px; justify-content: center; margin: 10px 0; }
+.scene-cell { width: 52px; height: 52px; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--text-light); }
+.scene-cell.arrow { background: rgba(243,156,18,0.2); border-color: #f39c12; font-size: 18px; }
+.scene-cell.start { background: rgba(39,174,96,0.2); border-color: #27ae60; font-size: 14px; font-weight: 700; color: #6ddb9e; }
+.scene-cell.end { background: rgba(231,76,60,0.2); border-color: #e74c3c; font-size: 14px; font-weight: 700; color: #e88c8c; }
+.scene-controls { display: flex; gap: 8px; justify-content: center; margin-top: 8px; flex-wrap: wrap; }
+.scene-ctrl-btn { padding: 8px 16px; border-radius: 10px; border: 2px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); color: #fff; font-size: 16px; cursor: pointer; font-weight: 700; transition: all 0.2s; }
+.scene-ctrl-btn:hover { background: rgba(255,255,255,0.12); }
+.scene-ctrl-btn.active { border-color: #f39c12; background: rgba(243,156,18,0.2); }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+
+/* Nav panel */
+.nav-panel{position:fixed;right:0;top:0;width:260px;height:100vh;background:rgba(255,255,255,0.96);z-index:200;transform:translateX(100%);transition:transform 0.3s;box-shadow:-4px 0 20px rgba(0,0,0,0.15);overflow-y:auto;padding:20px 14px 40px}
+.nav-panel.open{transform:translateX(0)}
+.nav-backdrop{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.25);z-index:199;display:none}
+.nav-backdrop.open{display:block}
+.nav-toggle{position:fixed;right:8px;top:50%;transform:translateY(-50%);z-index:201;width:34px;height:90px;border-radius:17px 0 0 17px;border:none;background:rgba(0,0,0,0.45);color:#fff;font-size:14px;cursor:pointer;writing-mode:vertical-lr;letter-spacing:3px;font-weight:700;transition:all 0.2s}
+.nav-toggle:hover{background:rgba(0,0,0,0.65);width:38px}
+.nav-close{float:right;background:none;border:none;font-size:22px;cursor:pointer;color:#999}
+.nav-title{font-size:16px;font-weight:900;color:#333;margin-bottom:14px}
+.nav-round{font-size:13px;font-weight:700;color:#666;margin:12px 0 6px}
+.nav-grid{display:flex;flex-wrap:wrap;gap:6px}
+.nav-dot{width:32px;height:32px;border-radius:7px;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;background:#fff;transition:all 0.15s}
+.nav-dot:hover{transform:scale(1.12)}
+.nav-dot.current{border-color:#333;box-shadow:0 0 0 3px rgba(0,0,0,0.12)}
+.nav-dot.ok{background:#d4edda;border-color:#27ae60;color:#155724}
+.nav-dot.err{background:#fdeaea;border-color:#e74c3c;color:#721c24}
+.nav-dot.timeout{background:#fff3cd;border-color:#f39c12;color:#856404}
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<button class="nav-toggle" id="navToggle" onclick="toggleNav()" style="display:none">题 目 导 航</button>
+<div class="nav-backdrop" id="navBackdrop" onclick="toggleNav()"></div>
+<div class="nav-panel" id="navPanel">
+  <button class="nav-close" onclick="toggleNav()">&times;</button>
+  <div class="nav-title">题目导航</div>
+  <div id="navContent"></div>
+</div>
+
+<!-- TITLE -->
+<div class="screen active" id="screenTitle">
+  <div class="title-icon">🧭</div>
+  <h1>方向大挑战</h1>
+  <p>三年级科学 · 第一单元复习闯关</p>
+  <button class="btn-start" onclick="startGame()">开始闯关 ▶</button>
+</div>
+
+<!-- SCOREBOARD -->
+<div class="score-board" id="scoreBoard" style="display:none">
+  <div class="score-total">总分: <span class="score-num" id="totalScore">0</span></div>
+</div>
+
+<!-- ROUND BADGE -->
+<div class="round-badge" id="roundBadge" style="display:none"></div>
+
+<!-- ROUND 1: MC -->
+<div class="screen" id="screenMC">
+  <div class="q-card">
+    <div class="q-header"><span class="q-round">🔥 第一关：火眼金睛</span><div class="q-status"><span class="q-timer" id="mcTimer">⏱15</span><span class="q-num" id="mcNum">1/10</span></div></div>
+    <span class="q-type-tag">选择题</span>
+    <div class="q-text" id="mcQ"></div>
+    <div class="opts" id="mcOpts"></div>
+    <div class="feedback" id="mcFb"></div>
+    <div class="nav-row"><button class="btn-nav btn-next" id="mcNext" style="display:none" onclick="nextMC()">下一题 ▶</button></div>
+  </div>
+</div>
+
+<!-- ROUND 2: TF -->
+<div class="screen" id="screenTF">
+  <div class="q-card">
+    <div class="q-header"><span class="q-round">⚖️ 第二关：明辨是非</span><div class="q-status"><span class="q-timer" id="tfTimer">⏱8</span><span class="q-num" id="tfNum">1/8</span></div></div>
+    <span class="q-type-tag tag-tf">判断题</span>
+    <div class="q-text" id="tfQ"></div>
+    <div class="tf-area"><button class="tf-btn true-btn" onclick="answerTF(true)">✓ 正确</button><button class="tf-btn false-btn" onclick="answerTF(false)">✗ 错误</button></div>
+    <div class="feedback" id="tfFb"></div>
+    <div class="nav-row"><button class="btn-nav btn-next" id="tfNext" style="display:none" onclick="nextTF()">下一题 ▶</button></div>
+  </div>
+</div>
+
+<!-- ROUND 3: FB -->
+<div class="screen" id="screenFB">
+  <div class="q-card">
+    <div class="q-header"><span class="q-round">📝 第三关：记忆达人</span><span class="q-num" id="fbNum">1/6</span></div>
+    <span class="q-type-tag tag-fb">填空题</span>
+    <div class="q-text" id="fbQ"></div>
+    <div class="blank-reveal" id="fbRev"></div>
+    <div class="nav-row" style="flex-wrap:wrap">
+      <button class="btn-nav btn-reveal" id="fbRevBtn" onclick="revealFB()">点我看答案 🔍</button>
+      <div id="fbConfirm" style="display:none;display:flex;gap:12px">
+        <button class="btn-nav btn-ok" onclick="fbOK(true)">✅ 答对了 +10</button>
+        <button class="btn-nav btn-no" onclick="fbOK(false)">❌ 没答对</button>
+      </div>
+      <button class="btn-nav btn-next" id="fbNext" style="display:none" onclick="nextFB()">下一题 ▶</button>
+    </div>
+  </div>
+</div>
+
+<!-- ROUND 4: SCENE -->
+<div class="screen" id="screenScene">
+  <div class="q-card">
+    <div class="q-header"><span class="q-round">🗺️ 第四关：身临其境</span><div class="q-status"><span class="q-timer" id="scTimer">⏱20</span><span class="q-num" id="scNum">1/4</span></div></div>
+    <span class="q-type-tag tag-scene">情境应用题</span>
+    <div class="q-text" id="scQ"></div>
+    <div id="scVisual"></div>
+    <div class="opts" id="scOpts"></div>
+    <div class="feedback" id="scFb"></div>
+    <div class="nav-row"><button class="btn-nav btn-next" id="scNext" style="display:none" onclick="nextScene()">下一题 ▶</button></div>
+  </div>
+</div>
+
+<!-- ROUND COMPLETE -->
+<div class="screen" id="screenRC">
+  <h2 id="rcTitle">🎉 第N关通过！</h2>
+  <div class="round-stats" id="rcStats"></div>
+  <div class="score-show" id="rcScores"></div>
+  <button class="btn-start" id="rcBtn" onclick="nextRound()">进入下一关 ▶</button>
+</div>
+
+<!-- FINAL -->
+<div class="screen" id="screenFinal">
+  <div class="winner-icon" id="winIcon">🏆</div>
+  <h2 id="winText"></h2>
+  <div class="final-scores" id="finalScores"></div>
+  <button class="btn-start" onclick="restartGame()">🔄 再来一局</button>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+// ===== AUDIO =====
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let actx;
+function beep(f, d, t='sine', v=0.15) {
+  if (!actx) actx = new AudioCtx();
+  const o = actx.createOscillator();
+  const g = actx.createGain();
+  o.type = t; o.frequency.value = f; g.gain.value = v;
+  o.connect(g); g.connect(actx.destination);
+  o.start(); g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime + d);
+  o.stop(actx.currentTime + d);
+}
+function sfx(s) {
+  if (s==='correct') { beep(523,0.1); setTimeout(()=>beep(659,0.1),100); setTimeout(()=>beep(784,0.2),200); }
+  else if (s==='wrong') { beep(200,0.4,'square',0.1); }
+  else if (s==='click') beep(440,0.05);
+  else if (s==='win') { beep(523,0.12); setTimeout(()=>beep(659,0.12),120); setTimeout(()=>beep(784,0.12),240); setTimeout(()=>beep(1047,0.3),360); }
+}
+
+// ===== STATE =====
+let gs = { score:0, round:0, timer:null, tLeft:0,
+  mcIdx:0, mcDone:false, tfIdx:0, tfDone:false, fbIdx:0, fbDone:false, scIdx:0, scDone:false };
+
+// ===== SCREENS =====
+function show(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+
+function updateScores() { document.getElementById('totalScore').textContent=gs.score; }
+
+// ===== TIMER =====
+function startTimer(sec, elId, cb) {
+  clearInterval(gs.timer); gs.tLeft = sec;
+  const el = document.getElementById(elId);
+  el.textContent = '⏱'+sec; el.classList.remove('warning');
+  gs.timer = setInterval(() => { gs.tLeft--;
+    el.textContent = '⏱'+gs.tLeft;
+    if (gs.tLeft <= 3) el.classList.add('warning');
+    if (gs.tLeft <= 0) { clearInterval(gs.timer); cb(); }
+  }, 1000);
+}
+function stopTimer() { clearInterval(gs.timer); }
+
+// ===== START =====
+function startGame() {
+  gs.score=0;gs.round=0;gs.mcIdx=0;gs.tfIdx=0;gs.fbIdx=0;gs.scIdx=0;
+  quizLog = { mc: new Array(mcQs.length).fill(null), tf: new Array(tfQs.length).fill(null), fb: new Array(fbQs.length).fill(null), sc: new Array(scQs.length).fill(null) };
+  updateScores();
+  document.getElementById('scoreBoard').style.display='flex';
+  document.getElementById('roundBadge').style.display='block';
+  document.getElementById('roundBadge').textContent='🔥 第一关：火眼金睛';
+  document.getElementById('confetti').style.display='none';
+  document.getElementById('navToggle').style.display='block';
+  loadMC();
+}
+
+// ===== ROUND 1: MULTIPLE CHOICE (10 questions - NEW, not from outline) =====
+const mcQs = [
+  { q: '小明在野外迷路了。他看到太阳正在他的正前方缓缓升起。请问他的右手边是什么方向？', opts: ['东方', '南方', '西方', '北方'], ans: 1,
+    explain: '早晨太阳在东方升起，面朝东方时，右手边（右边）是南方。' },
+  { q: '一棵大树的树桩横切面上，年轮间距较宽的一侧通常朝向哪个方向？', opts: ['东方', '南方', '西方', '北方'], ans: 1,
+    explain: '南侧阳光充足，树木生长更快，年轮间距更宽。' },
+  { q: '小丽在正午12点观察旗杆的影子，影子指向正北方。此时太阳大约在什么方向？', opts: ['东方', '南方', '西方', '北方'], ans: 1,
+    explain: '正午太阳偏南（北半球），影子与太阳方向相反，影子指向北方说明太阳在南方。' },
+  { q: '两根磁针靠在一起，结果它们互相推开。这说明它们靠近的两端是什么关系？', opts: ['都是N极', '都是S极', '是同极', '是异极'], ans: 2,
+    explain: '同极相互排斥。不管是N-N还是S-S，只要是同极就会推开。但题目问的是"什么关系"，所以"同极"最准确。' },
+  { q: '指南针的红色N极总是指向地理北方。这是因为地理北方附近有什么？', opts: ['地磁N极', '地磁S极', '巨大的铁矿', '北极星'], ans: 1,
+    explain: '地磁南极在地理北极附近。异极相吸，所以磁针N极被地磁S极吸引，指向地理北方。' },
+  { q: '小华用磁铁摩擦钢针来制作磁针。他发现摩擦过的钢针几乎没磁性，最可能的原因是什么？', opts: ['钢针不是铁做的', '他用了来回摩擦', '磁铁本身没磁性', '摩擦次数太少'], ans: 1,
+    explain: '磁化时必须沿同一方向摩擦。来回摩擦会使磁化效果相互抵消，这是制作磁针最常见的错误。' },
+  { q: '傍晚时分，一位同学面朝落日的方向。他的左边是什么方向？', opts: ['东方', '南方', '西方', '北方'], ans: 1,
+    explain: '傍晚太阳在西方落下。面朝西方时，左边是南方，右边是北方。' },
+  { q: '在北方地区，冬天过后，房屋哪一侧屋顶的积雪通常先融化？', opts: ['东侧', '南侧', '西侧', '北侧'], ans: 1,
+    explain: '南侧屋顶获得更多阳光照射，积雪融化更快。' },
+  { q: '指南针的发明使古代航海和旅行不再迷路。指南针为什么总是指南北？', opts: ['里面有电池', '受地球地磁场作用', '受太阳引力作用', '受风力作用'], ans: 1,
+    explain: '地球本身是一个巨大的磁体，周围存在地磁场，指南针的磁针在地磁场作用下指向南北方向。' },
+  { q: '小军想做一个"水浮式指南针"。他把一根磁针放在水面上，但磁针沉下去了。他应该怎么做？', opts: ['换更大的磁针', '把磁针放在泡沫上', '多加一些水', '用热水'], ans: 1,
+    explain: '水浮式指南针需要让磁针浮在水面自由旋转。可以用轻质材料（如泡沫、软木）托住磁针。' },
+];
+
+function loadMC() {
+  if (gs.mcIdx >= mcQs.length) { completeRound(1); return; }
+  show('screenMC');
+  const q = mcQs[gs.mcIdx];
+  document.getElementById('mcNum').textContent = `${gs.mcIdx+1}/10`;
+  document.getElementById('mcQ').textContent = q.q;
+  document.getElementById('mcFb').textContent = '';
+  document.getElementById('mcFb').className = 'feedback';
+  document.getElementById('mcNext').style.display = 'none';
+  gs.mcDone = false;
+  const labels = ['A','B','C','D'];
+  document.getElementById('mcOpts').innerHTML = q.opts.map((o,i) =>
+    `<button class="opt-btn" onclick="answerMC(${i})"><span class="opt-label">${labels[i]}</span>${o}</button>`).join('');
+  renderNav();
+  startTimer(15, 'mcTimer', timeUpMC);
+}
+function timeUpMC() {
+  gs.mcDone = true;
+  quizLog.mc[gs.mcIdx] = 'timeout';
+  const q = mcQs[gs.mcIdx];
+  document.querySelectorAll('#mcOpts .opt-btn').forEach((b,i) => { b.style.pointerEvents='none'; if(i===q.ans) b.classList.add('correct'); });
+  document.getElementById('mcFb').textContent = '⏰ 时间到！答案：'+['A','B','C','D'][q.ans]+' — '+q.explain;
+  document.getElementById('mcFb').className = 'feedback wrong';
+  sfx('wrong'); document.getElementById('mcNext').style.display='inline-block';
+  renderNav();
+}
+function answerMC(i) {
+  if (gs.mcDone) return; gs.mcDone = true; stopTimer();
+  const q = mcQs[gs.mcIdx];
+  document.querySelectorAll('#mcOpts .opt-btn').forEach((b,j) => { b.style.pointerEvents='none'; if(j===q.ans) b.classList.add('correct'); if(j===i&&j!==q.ans) b.classList.add('wrong'); });
+  if (i === q.ans) {
+    document.getElementById('mcFb').textContent = '✅ 回答正确！+10分'; document.getElementById('mcFb').className = 'feedback correct';
+    sfx('correct');
+    gs.score+=10;
+    quizLog.mc[gs.mcIdx] = 'ok';
+  } else {
+    document.getElementById('mcFb').textContent = '❌ 回答错误！'+q.explain; document.getElementById('mcFb').className = 'feedback wrong';
+    sfx('wrong');
+    quizLog.mc[gs.mcIdx] = 'err';
+  }
+  updateScores(); renderNav(); document.getElementById('mcNext').style.display='inline-block';
+}
+function nextMC() { sfx('click'); stopTimer(); gs.mcIdx++; loadMC(); }
+
+// ===== ROUND 2: TRUE/FALSE (8 questions - NEW) =====
+const tfQs = [
+  { q: '小明说：\"正午的时候，人的影子指向南方。\"他说得对吗？', ans: false, explain: '在北半球，正午太阳在南方，影子指向北方。除非在南半球。' },
+  { q: '在石头上，苔藓更多的一侧通常朝向北方。', ans: true, explain: '苔藓喜阴，北侧阳光少，更适合苔藓生长。' },
+  { q: '把两块磁铁的S极互相靠近，它们会紧紧吸在一起。', ans: false, explain: '同极（S-S）相互排斥，应该互相推开。' },
+  { q: '被磁化的钢针，中间位置的磁性最强。', ans: false, explain: '条形磁体中间磁性最弱，两端磁极处磁性最强。钢针被磁化后同样如此。' },
+  { q: '阳光充足的南侧，树木的年轮通常更密集。', ans: false, explain: '南侧阳光充足，树木生长更快，年轮间距更宽（稀疏），而不是更密集。' },
+  { q: '指南针的N极之所以指向北方，是因为地磁的N极在地球的地理北方附近吸引它。', ans: false, explain: '地磁南极在地理北极附近。异极相吸，N极被地磁S极吸引。牢记：地磁极和地理极是反的！' },
+  { q: '用磁铁磁化钢针时，来回摩擦比单向摩擦效果更好。', ans: false, explain: '来回摩擦会使磁化效果相互抵消，必须沿着同一方向反复摩擦。' },
+  { q: '在没有太阳的阴天，北极星是辨别方向最可靠的自然物之一。', ans: true, explain: '夜晚且有北极星可见时，北极星始终指向北方，是非常可靠的方向参照。' },
+];
+
+function loadTF() {
+  if (gs.tfIdx >= tfQs.length) { completeRound(2); return; }
+  show('screenTF');
+  const q = tfQs[gs.tfIdx];
+  document.getElementById('tfNum').textContent = `${gs.tfIdx+1}/8`;
+  document.getElementById('tfQ').textContent = q.q;
+  document.getElementById('tfFb').textContent = '';
+  document.getElementById('tfFb').className = 'feedback';
+  document.getElementById('tfNext').style.display = 'none';
+  gs.tfDone = false;
+  document.querySelectorAll('.tf-btn').forEach(b => { b.classList.remove('correct','wrong'); b.style.pointerEvents='auto'; });
+  renderNav();
+  startTimer(8, 'tfTimer', timeUpTF);
+}
+function timeUpTF() {
+  gs.tfDone = true;
+  quizLog.tf[gs.tfIdx] = 'timeout';
+  const q = tfQs[gs.tfIdx];
+  document.querySelectorAll('.tf-btn').forEach(b => { b.style.pointerEvents='none'; if((b.classList.contains('true-btn')&&q.ans)||(b.classList.contains('false-btn')&&!q.ans)) b.classList.add('correct'); });
+  document.getElementById('tfFb').textContent = `⏰ 时间到！${q.ans?'正确':'错误'} — ${q.explain}`;
+  document.getElementById('tfFb').className = 'feedback wrong'; sfx('wrong');
+  document.getElementById('tfNext').style.display='inline-block';
+  renderNav();
+}
+function answerTF(u) {
+  if (gs.tfDone) return; gs.tfDone = true; stopTimer();
+  const q = tfQs[gs.tfIdx];
+  const tb = document.querySelector('.true-btn'), fb = document.querySelector('.false-btn');
+  tb.style.pointerEvents='none'; fb.style.pointerEvents='none';
+  if (q.ans) { tb.classList.add('correct'); if (!u) fb.classList.add('wrong'); }
+  else { fb.classList.add('correct'); if (u) tb.classList.add('wrong'); }
+  if (u === q.ans) {
+    document.getElementById('tfFb').textContent = '✅ 判断正确！+10分'; document.getElementById('tfFb').className = 'feedback correct';
+    sfx('correct'); gs.score+=10; quizLog.tf[gs.tfIdx] = 'ok';
+  } else {
+    document.getElementById('tfFb').textContent = `❌ 判断错误！${q.explain}`; document.getElementById('tfFb').className = 'feedback wrong';
+    sfx('wrong'); quizLog.tf[gs.tfIdx] = 'err';
+  }
+  updateScores(); renderNav(); document.getElementById('tfNext').style.display='inline-block';
+}
+function nextTF() { sfx('click'); stopTimer(); gs.tfIdx++; loadTF(); }
+
+// ===== ROUND 3: FILL IN BLANK (6 questions - NEW) =====
+const fbQs = [
+  { q: '太阳每天从<span style="color:#f39c12">______</span>方升起，在<span style="color:#f39c12">______</span>方落下。', ans: ['东','西'] },
+  { q: '磁铁指向南方的一端叫<span style="color:#f39c12">______</span>极，用字母<span style="color:#f39c12">______</span>表示。', ans: ['南','S'] },
+  { q: '磁极相互作用中：同极互相<span style="color:#f39c12">______</span>，异极互相<span style="color:#f39c12">______</span>。', ans: ['排斥','吸引'] },
+  { q: '地球本身是一个巨大的<span style="color:#f39c12">______</span>体，周围存在着<span style="color:#f39c12">______</span>场。', ans: ['磁','地磁'] },
+  { q: '在晴朗的夜晚，我们可以通过寻找<span style="color:#f39c12">______</span>星来确定北方。', ans: ['北极'] },
+  { q: '指南针由<span style="color:#f39c12">______</span>和<span style="color:#f39c12">______</span>两个主要部分组成。', ans: ['磁针','方位盘'] },
+];
+
+function loadFB() {
+  if (gs.fbIdx >= fbQs.length) { completeRound(3); return; }
+  show('screenFB');
+  const q = fbQs[gs.fbIdx];
+  document.getElementById('fbNum').textContent = `${gs.fbIdx+1}/6`;
+  document.getElementById('fbQ').innerHTML = q.q;
+  document.getElementById('fbRev').innerHTML = '';
+  document.getElementById('fbRevBtn').style.display = 'inline-block';
+  document.getElementById('fbNext').style.display = 'none';
+  gs.fbDone = false;
+  const cf = document.getElementById('fbConfirm'); cf.style.display = 'none';
+  renderNav();
+}
+function revealFB() {
+  if (gs.fbDone) return; gs.fbDone = true;
+  const q = fbQs[gs.fbIdx];
+  document.getElementById('fbRev').innerHTML = '答案：<span style="color:#f39c12;font-size:24px;font-weight:900">' + q.ans.join('、') + '</span>';
+  document.getElementById('fbRevBtn').style.display = 'none';
+  const cf = document.getElementById('fbConfirm'); cf.style.display = 'flex';
+}
+function fbOK(ok) {
+  document.getElementById('fbConfirm').style.display = 'none';
+  if (ok) { sfx('correct'); gs.score+=10; quizLog.fb[gs.fbIdx] = 'ok'; }
+  else { sfx('wrong'); quizLog.fb[gs.fbIdx] = 'err'; }
+  updateScores(); renderNav(); document.getElementById('fbNext').style.display='inline-block';
+}
+function nextFB() { sfx('click'); stopTimer(); gs.fbIdx++; loadFB(); }
+
+// ===== ROUND 4: SCENE QUESTIONS (4 questions - NEW, application-based) =====
+const scQs = [
+  {
+    q: '小方和小圆在公园里迷路了。现在是下午3点，他们看到太阳在西边的天空。小方说："面朝太阳，我们的右边就是北方。"小圆说："不对，面朝太阳，右边应该是南方。"谁说得对？',
+    opts: ['小方说得对', '小圆说得对', '两人说得都不对', '无法判断'],
+    ans: 0,
+    explain: '下午太阳在西方。面朝西方时，右边是北方，左边是南方。所以小方说"右边是北方"是正确的。',
+    vis: '<div style="text-align:center;font-size:50px;margin:10px 0">👧🌅🧒<br><span style="font-size:16px;color:var(--text-light)">下午3点 · 太阳在西边</span></div>'
+  },
+  {
+    q: '一块磁铁摔成了两段（如图）。摔断后，每段各有多少个磁极？',
+    opts: ['每段各有1个磁极', '每段各有2个磁极', '一段有N极，一段有S极', '摔断后就没有磁极了'],
+    ans: 1,
+    explain: '磁铁摔断后，每一段都成为一块独立的小磁铁，各自拥有N极和S极两个磁极。不可能得到单独的N极或S极。',
+    vis: '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin:14px 0"><div style="width:120px;height:40px;background:linear-gradient(90deg,#e74c3c,#3498db);border-radius:8px;display:flex;align-items:center;justify-content:space-between;padding:0 10px"><span style="color:#fff;font-weight:900">N</span><span style="color:#fff;font-weight:900">S</span></div><span style="color:#fff;font-size:24px">→💥→</span><div style="width:55px;height:40px;background:linear-gradient(90deg,#e74c3c,#3498db);border-radius:8px;display:flex;align-items:center;justify-content:space-between;padding:0 8px"><span style="color:#fff;font-weight:900;font-size:12px">N</span><span style="color:#fff;font-weight:900;font-size:12px">S</span></div><div style="width:55px;height:40px;background:linear-gradient(90deg,#e74c3c,#3498db);border-radius:8px;display:flex;align-items:center;justify-content:space-between;padding:0 8px"><span style="color:#fff;font-weight:900;font-size:12px">N</span><span style="color:#fff;font-weight:900;font-size:12px">S</span></div></div>'
+  },
+  {
+    q: '下列四种指南针设计方案中，哪一种最不符合"磁针能自由转动"的设计要求？',
+    opts: ['将磁针放在水面泡沫上', '用细线悬吊磁针', '将磁针固定粘在纸板上', '将磁针顶在针尖上'],
+    ans: 2,
+    explain: '指南针的磁针必须能自由转动才能指示方向。粘在纸板上就固定住了，无法转动指示南北方向。',
+    vis: '<div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin:10px 0"><div style="text-align:center">🧊<br><span style="font-size:12px;color:var(--text-light)">A.水浮式</span></div><div style="text-align:center">🧵<br><span style="font-size:12px;color:var(--text-light)">B.悬吊式</span></div><div style="text-align:center">📌<br><span style="font-size:12px;color:var(--text-light)">C.固定式</span></div><div style="text-align:center">📌<br><span style="font-size:12px;color:var(--text-light)">D.支撑式</span></div></div>'
+  },
+  {
+    q: '小明用地图导航去一个陌生地方，发现手机里的"电子指南针"也能指示方向。电子指南针和传统指南针原理有什么共同点？',
+    opts: ['都是用磁针指向', '都依赖卫星定位', '都利用地磁场辨向', '都靠太阳辨向'],
+    ans: 2,
+    explain: '手机里的电子指南针（磁力计传感器）也是通过感知地球磁场来确定方向的，和传统指南针一样依赖地磁场。区别是一个用电子传感器，一个用实物磁针。',
+    vis: '<div style="text-align:center;font-size:50px;margin:10px 0">📱 ⟷ 🧭</div>'
+  },
+];
+
+// ===== NAV LOG =====
+let quizLog = { mc: new Array(mcQs.length).fill(null), tf: new Array(tfQs.length).fill(null), fb: new Array(fbQs.length).fill(null), sc: new Array(scQs.length).fill(null) };
+
+function loadScene() {
+  if (gs.scIdx >= scQs.length) { completeRound(4); return; }
+  show('screenScene');
+  const q = scQs[gs.scIdx];
+  document.getElementById('scNum').textContent = `${gs.scIdx+1}/4`;
+  document.getElementById('scQ').textContent = q.q;
+  document.getElementById('scVisual').innerHTML = q.vis || '';
+  document.getElementById('scFb').textContent = '';
+  document.getElementById('scFb').className = 'feedback';
+  document.getElementById('scNext').style.display = 'none';
+  gs.scDone = false;
+  const labels = ['A','B','C','D'];
+  document.getElementById('scOpts').innerHTML = q.opts.map((o,i) =>
+    `<button class="opt-btn" onclick="answerScene(${i})"><span class="opt-label">${labels[i]}</span>${o}</button>`).join('');
+  renderNav();
+  startTimer(20, 'scTimer', timeUpScene);
+}
+function timeUpScene() {
+  gs.scDone = true;
+  quizLog.sc[gs.scIdx] = 'timeout';
+  const q = scQs[gs.scIdx];
+  document.querySelectorAll('#scOpts .opt-btn').forEach((b,i) => { b.style.pointerEvents='none'; if(i===q.ans) b.classList.add('correct'); });
+  document.getElementById('scFb').textContent = '⏰ 时间到！答案：'+['A','B','C','D'][q.ans]+' — '+q.explain;
+  document.getElementById('scFb').className = 'feedback wrong'; sfx('wrong');
+  document.getElementById('scNext').style.display='inline-block';
+  renderNav();
+}
+function answerScene(i) {
+  if (gs.scDone) return; gs.scDone = true; stopTimer();
+  const q = scQs[gs.scIdx];
+  document.querySelectorAll('#scOpts .opt-btn').forEach((b,j) => { b.style.pointerEvents='none'; if(j===q.ans) b.classList.add('correct'); if(j===i&&j!==q.ans) b.classList.add('wrong'); });
+  if (i === q.ans) {
+    document.getElementById('scFb').textContent = '✅ 回答正确！+15分'; document.getElementById('scFb').className = 'feedback correct';
+    sfx('correct'); gs.score+=15; quizLog.sc[gs.scIdx] = 'ok';
+  } else {
+    document.getElementById('scFb').textContent = '❌ 回答错误！'+q.explain; document.getElementById('scFb').className = 'feedback wrong';
+    sfx('wrong'); quizLog.sc[gs.scIdx] = 'err';
+  }
+  updateScores(); renderNav(); document.getElementById('scNext').style.display='inline-block';
+}
+function nextScene() { sfx('click'); stopTimer(); gs.scIdx++; loadScene(); }
+
+// ===== ROUND COMPLETE =====
+function completeRound(r) {
+  stopTimer();
+  const names = ['','火眼金睛','明辨是非','记忆达人','身临其境'];
+  document.getElementById('rcTitle').textContent = `🎉 第${['','一','二','三','四'][r]}关：${names[r]} 通过！`;
+  document.getElementById('rcScores').innerHTML = `
+    <div class="s-box"><div class="s-name">总分</div><div class="s-num">${gs.score}</div></div>`;
+  if (r < 4) {
+    document.getElementById('rcBtn').style.display = 'inline-block';
+    document.getElementById('rcBtn').textContent = '进入下一关 ▶';
+  } else {
+    document.getElementById('rcBtn').textContent = '🏆 查看成绩！';
+    document.getElementById('rcBtn').onclick = showFinal;
+  }
+  show('screenRC');
+}
+
+function nextRound() {
+  sfx('click'); gs.round++;
+  const badges = ['','🔥 第一关：火眼金睛','⚖️ 第二关：明辨是非','📝 第三关：记忆达人','🗺️ 第四关：身临其境'];
+  document.getElementById('roundBadge').textContent = badges[gs.round+1];
+  if (gs.round === 0) { gs.tfIdx=0; loadTF(); } // unused: round starts at 0, after completeRound r=1, nextRound gs.round becomes 1
+  // Actually let's fix: startGame sets round=0 and loads MC. completeRound(1) -> round stays 0. nextRound -> round++ -> 1 -> load TF
+  if (gs.round === 1) { gs.tfIdx=0; loadTF(); }
+  else if (gs.round === 2) { gs.fbIdx=0; loadFB(); }
+  else if (gs.round === 3) { gs.scIdx=0; loadScene(); }
+  document.getElementById('rcBtn').onclick = nextRound;
+}
+
+// ===== FINAL =====
+function showFinal() {
+  show('screenFinal');
+  document.getElementById('scoreBoard').style.display='none';
+  document.getElementById('roundBadge').style.display='none';
+  document.getElementById('navToggle').style.display='none';
+  document.getElementById('navPanel').classList.remove('open');
+  document.getElementById('navBackdrop').classList.remove('open');
+  let wIcon, wText;
+  if (gs.score >= 200) { wIcon='🏆'; wText='太厉害了！方向大师！'; }
+  else if (gs.score >= 150) { wIcon='⭐'; wText='表现优秀，继续加油！'; }
+  else if (gs.score >= 100) { wIcon='👍'; wText='不错哦，再接再厉！'; }
+  else { wIcon='💪'; wText='还要多练练哦！'; }
+  document.getElementById('winIcon').textContent = wIcon;
+  document.getElementById('winText').textContent = wText;
+  document.getElementById('finalScores').innerHTML = `
+    <div class="fs-box"><div class="fs-icon">🏆</div><div class="fs-name">最终总分</div><div class="fs-num">${gs.score}</div></div>`;
+  sfx('win');
+  launchConfetti();
+}
+
+// ===== NAVIGATION =====
+function toggleNav() {
+  document.getElementById('navPanel').classList.toggle('open');
+  document.getElementById('navBackdrop').classList.toggle('open');
+}
+function renderNav() {
+  const mcIdx = Math.min(gs.mcIdx, mcQs.length - 1);
+  const tfIdx = Math.min(gs.tfIdx, tfQs.length - 1);
+  const fbIdx = Math.min(gs.fbIdx, fbQs.length - 1);
+  const scIdx = Math.min(gs.scIdx, scQs.length - 1);
+  const mcActive = document.getElementById('screenMC').classList.contains('active');
+  const tfActive = document.getElementById('screenTF').classList.contains('active');
+  const fbActive = document.getElementById('screenFB').classList.contains('active');
+  const scActive = document.getElementById('screenScene').classList.contains('active');
+  let html = '';
+  const rounds = [
+    { label: '第一关：火眼金睛', logs: quizLog.mc, active: mcActive, curIdx: mcActive ? gs.mcIdx : -1, jump: 'jumpMC' },
+    { label: '第二关：明辨是非', logs: quizLog.tf, active: tfActive, curIdx: tfActive ? gs.tfIdx : -1, jump: 'jumpTF' },
+    { label: '第三关：记忆达人', logs: quizLog.fb, active: fbActive, curIdx: fbActive ? gs.fbIdx : -1, jump: 'jumpFB' },
+    { label: '第四关：身临其境', logs: quizLog.sc, active: scActive, curIdx: scActive ? gs.scIdx : -1, jump: 'jumpSC' },
+  ];
+  rounds.forEach(r => {
+    html += `<div class="nav-round">${r.label}</div><div class="nav-grid">`;
+    r.logs.forEach((st, i) => {
+      let cls = 'nav-dot';
+      if (r.active && i === r.curIdx) cls += ' current';
+      if (st === 'ok') cls += ' ok';
+      else if (st === 'err') cls += ' err';
+      else if (st === 'timeout') cls += ' timeout';
+      html += `<div class="${cls}" onclick="${r.jump}(${i})">${i+1}</div>`;
+    });
+    html += '</div>';
+  });
+  document.getElementById('navContent').innerHTML = html;
+}
+function jumpMC(i) { stopTimer(); gs.mcIdx = i; loadMC(); }
+function jumpTF(i) { stopTimer(); gs.tfIdx = i; loadTF(); }
+function jumpFB(i) { stopTimer(); gs.fbIdx = i; loadFB(); }
+function jumpSC(i) { stopTimer(); gs.scIdx = i; loadScene(); }
+
+// ===== CONFETTI =====
+function launchConfetti() {
+  const c = document.getElementById('confetti');
+  c.style.display = 'block'; c.width = window.innerWidth; c.height = window.innerHeight;
+  const ctx = c.getContext('2d');
+  const particles = [];
+  for (let i = 0; i < 200; i++) {
+    particles.push({ x: Math.random()*c.width, y: Math.random()*c.height*-1, w: Math.random()*10+5, h: Math.random()*6+4,
+      color: ['#e74c3c','#f39c12','#3498db','#2ecc71','#9b59b6','#e67e22','#1abc9c'][Math.floor(Math.random()*7)],
+      vy: Math.random()*3+2, vx: (Math.random()-0.5)*3, rot: Math.random()*360, rv: (Math.random()-0.5)*8 });
+  }
+  function draw() {
+    ctx.clearRect(0, 0, c.width, c.height);
+    let alive = false;
+    particles.forEach(p => {
+      p.y += p.vy; p.x += p.vx; p.rot += p.rv;
+      if (p.y < c.height + 50) alive = true;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle = p.color; ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+    if (alive) requestAnimationFrame(draw);
+    else c.style.display = 'none';
+  }
+  draw();
+}
+
+function restartGame() { show('screenTitle'); document.getElementById('scoreBoard').style.display='none'; document.getElementById('roundBadge').style.display='none'; document.getElementById('confetti').style.display='none'; document.getElementById('navToggle').style.display='none'; document.getElementById('navPanel').classList.remove('open'); document.getElementById('navBackdrop').classList.remove('open'); }
+
+// Fix fbConfirm initial style
+document.getElementById('fbConfirm').style.display = 'none';
+</script>
+</body>
+</html>

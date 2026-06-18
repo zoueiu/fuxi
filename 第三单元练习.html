@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>探索宇宙奥秘 · 第三单元复习闯关（改编版）</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:radial-gradient(ellipse at center,#1a2a6c 0%,#0d0d2b 50%,#000 100%);min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;position:relative}
+body::before{content:'';position:fixed;top:0;left:0;width:100%;height:100%;background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><circle cx="20" cy="30" r="1.5" fill="white" opacity="0.6"/><circle cx="150" cy="80" r="1" fill="white" opacity="0.4"/><circle cx="300" cy="50" r="2" fill="white" opacity="0.7"/><circle cx="80" cy="200" r="1.5" fill="white" opacity="0.5"/><circle cx="350" cy="250" r="1" fill="white" opacity="0.6"/><circle cx="200" cy="300" r="2" fill="white" opacity="0.4"/><circle cx="50" cy="350" r="1.5" fill="white" opacity="0.7"/><circle cx="380" cy="120" r="1" fill="white" opacity="0.5"/><circle cx="120" cy="150" r="2" fill="white" opacity="0.3"/><circle cx="280" cy="380" r="1.5" fill="white" opacity="0.6"/></svg>');pointer-events:none;opacity:0.6}
+.top-bar{width:100%;max-width:1000px;display:flex;justify-content:space-between;align-items:center;padding:16px 24px;color:#fff;position:relative;z-index:1}
+.top-bar .title{font-size:22px;font-weight:900}
+.scores{display:flex;gap:20px}
+.score-card{background:rgba(255,255,255,0.12);border-radius:12px;padding:8px 18px;text-align:center;min-width:80px;backdrop-filter:blur(4px)}
+.score-card .name{font-size:13px;opacity:0.85}
+.score-card .num{font-size:28px;font-weight:900}
+.screen{display:none;width:100%;max-width:900px;padding:0 20px 30px;position:relative;z-index:1}
+.screen.active{display:block;animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.card{background:rgba(15,23,55,0.92);border:1px solid rgba(100,150,255,0.25);border-radius:18px;padding:30px;box-shadow:0 10px 40px rgba(0,0,50,0.4);color:#dde}
+.card h2{font-size:26px;color:#8ab4f8;margin-bottom:16px;text-align:center}
+.q-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.q-round{font-size:15px;color:#8ab4f8;font-weight:700}
+.q-status{display:flex;gap:14px;align-items:center}
+.q-timer{font-size:26px;font-weight:900;color:#ff6b6b;min-width:55px;text-align:center}
+.q-timer.warning{animation:blink .5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.q-num{font-size:15px;color:#8899bb}
+.q-text{font-size:20px;line-height:1.7;color:#dde;margin:16px 0 20px;padding:14px 18px;background:rgba(100,150,255,0.08);border-radius:10px;border:1px solid rgba(100,150,255,0.12)}
+.options{display:grid;gap:10px}
+.opt-btn{display:block;width:100%;text-align:left;padding:14px 18px;border:2px solid rgba(100,150,255,0.2);border-radius:12px;background:rgba(20,30,60,0.6);color:#dde;font-size:17px;cursor:pointer;transition:all .2s}
+.opt-btn:hover{border-color:#8ab4f8;background:rgba(100,150,255,0.15);transform:translateX(4px)}
+.opt-btn.correct{border-color:#4caf50;background:rgba(76,175,80,0.2);color:#81c784;font-weight:700}
+.opt-btn.wrong{border-color:#f44336;background:rgba(244,67,54,0.15);color:#ef9a9a}
+.opt-btn b{color:#8ab4f8;margin-right:8px}
+.feedback{margin-top:16px;padding:12px 18px;border-radius:10px;font-size:17px;font-weight:700;text-align:center;display:none}
+.feedback.correct{display:block;background:rgba(76,175,80,0.2);color:#81c784;border:1px solid rgba(76,175,80,0.3)}
+.feedback.wrong{display:block;background:rgba(244,67,54,0.15);color:#ef9a9a;border:1px solid rgba(244,67,54,0.25)}
+.btn-row{display:flex;gap:12px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.btn{padding:12px 28px;border-radius:25px;border:none;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-next{background:linear-gradient(135deg,#4a6cf7,#6c8cff);color:#fff}
+.btn-next:hover{background:linear-gradient(135deg,#3a5ce5,#5a7aee)}
+.btn-reveal{background:#ffd700;color:#0d1b3e}
+.btn-reveal:hover{background:#e0a800}
+.btn-tf{width:200px;padding:18px;font-size:22px;border-radius:14px;font-weight:900}
+.btn-true{background:#4caf50;color:#fff}
+.btn-true:hover{background:#388e3c}
+.btn-false{background:#f44336;color:#fff}
+.btn-false:hover{background:#d32f2f}
+.tf-row{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+.start{text-align:center;padding:40px 0}
+.start h1{font-size:38px;color:#ffd700;margin-bottom:8px;text-shadow:0 0 20px rgba(255,215,0,0.3)}
+.start .sub{font-size:16px;color:#8ab4f8;margin-bottom:24px}
+.start .rules{text-align:left;display:inline-block;font-size:15px;color:#aabbdd;line-height:2;margin-bottom:24px}
+.btn-start{padding:16px 50px;font-size:22px;background:linear-gradient(135deg,#ffd700,#f0a500);color:#0d1b3e;border:none;border-radius:30px;font-weight:900;cursor:pointer;box-shadow:0 6px 20px rgba(240,165,0,0.4);transition:all .25s}
+.btn-start:hover{transform:scale(1.05);box-shadow:0 8px 28px rgba(240,165,0,0.6),0 0 30px rgba(255,215,0,0.2)}
+.round-complete{text-align:center;padding:30px}
+.round-complete h2{font-size:30px;color:#ffd700;margin-bottom:16px}
+.round-score{display:flex;justify-content:center;gap:40px;margin:20px 0;flex-wrap:wrap}
+.rs-card{background:rgba(100,150,255,0.1);border-radius:14px;padding:20px 30px;text-align:center;border:1px solid rgba(100,150,255,0.2)}
+.rs-card .rn{font-size:15px;color:#8ab4f8;margin-bottom:4px}
+.rs-card .rs{font-size:36px;font-weight:900;color:#ffd700}
+.confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:200;display:none}
+.confetti.active{display:block}
+.confetti-piece{position:absolute;width:10px;height:10px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{0%{transform:translateY(-100px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+.q-type-tag{display:inline-block;font-size:12px;padding:3px 10px;border-radius:12px;font-weight:700;margin-bottom:8px}
+.tag-mc{background:rgba(100,150,255,0.2);color:#8ab4f8}
+.tag-tf{background:rgba(255,215,0,0.2);color:#ffd700}
+.tag-fb{background:rgba(244,67,54,0.2);color:#ef9a9a}
+.tag-sc{background:rgba(76,175,80,0.2);color:#81c784}
+.scene-img{background:rgba(100,150,255,0.06);border:1px solid rgba(100,150,255,0.15);border-radius:12px;padding:20px;margin:12px 0;font-size:15px;line-height:1.7;text-align:center;color:#aabbdd}
+.scene-img svg{display:block;margin:0 auto}
+.blank-reveal{margin-top:14px;padding:14px 18px;background:rgba(100,150,255,0.1);border-radius:10px;font-size:18px;display:none;border:1px solid rgba(100,150,255,0.2)}
+.blank-reveal .ans{color:#ffd700;font-weight:900;font-size:20px}
+.sc-q{font-size:18px;color:#dde;line-height:1.8;margin:14px 0}
+@media(max-width:600px){.start h1{font-size:26px}.q-text{font-size:17px}.opt-btn{font-size:15px;padding:12px 14px}}
+.nav-panel{position:fixed;right:0;top:0;width:260px;height:100vh;background:rgba(255,255,255,0.96);z-index:200;transform:translateX(100%);transition:transform 0.3s;box-shadow:-4px 0 20px rgba(0,0,0,0.15);overflow-y:auto;padding:20px 14px 40px}
+.nav-panel.open{transform:translateX(0)}
+.nav-backdrop{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.25);z-index:199;display:none}
+.nav-backdrop.open{display:block}
+.nav-toggle{position:fixed;right:8px;top:50%;transform:translateY(-50%);z-index:201;width:34px;height:90px;border-radius:17px 0 0 17px;border:none;background:rgba(0,0,0,0.45);color:#fff;font-size:14px;cursor:pointer;writing-mode:vertical-lr;letter-spacing:3px;font-weight:700;transition:all 0.2s}
+.nav-toggle:hover{background:rgba(0,0,0,0.65);width:38px}
+.nav-close{float:right;background:none;border:none;font-size:22px;cursor:pointer;color:#999;margin:-4px -4px 0 0}
+.nav-title{font-size:16px;font-weight:900;color:#333;margin-bottom:14px}
+.nav-round{font-size:13px;font-weight:700;color:#666;margin:12px 0 6px}
+.nav-grid{display:flex;flex-wrap:wrap;gap:6px}
+.nav-dot{width:32px;height:32px;border-radius:7px;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;background:#fff;transition:all 0.15s}
+.nav-dot:hover{transform:scale(1.12)}
+.nav-dot.current{border-color:#333;box-shadow:0 0 0 3px rgba(0,0,0,0.12)}
+.nav-dot.ok{background:#d4edda;border-color:#27ae60;color:#155724}
+.nav-dot.err{background:#fdeaea;border-color:#e74c3c;color:#721c24}
+.nav-dot.timeout{background:#fff3cd;border-color:#f39c12;color:#856404}
+</style>
+</head>
+<body>
+
+<button class="nav-toggle" onclick="toggleNav()">题号导航</button>
+<div class="nav-backdrop" id="navBackdrop" onclick="toggleNav()"></div>
+<div class="nav-panel" id="navPanel">
+  <button class="nav-close" onclick="toggleNav()">✕</button>
+  <div class="nav-title">题目导航</div>
+  <div id="navContent"></div>
+</div>
+
+<div class="top-bar">
+  <div class="title">🌌 探索宇宙奥秘 · 第三单元（改编版）</div>
+  <div class="scores">
+    <div class="score-card" style="border:2px solid #ffd700"><div class="name">总分</div><div class="num" id="totalScore">0</div></div>
+  </div>
+</div>
+
+
+<!-- START -->
+<div class="screen active" id="screenStart">
+  <div class="card start">
+    <h1>🌌 探索宇宙奥秘</h1>
+    <div class="sub">教科版 · 三年级下册 · 第三单元 · 改编版</div>
+    <div class="rules">
+      🔥 <b>第一关：星海迷航</b>（选择题 10题 × 10分）<br>
+      ⚖️ <b>第二关：真假裁判</b>（判断题 8题 × 10分）<br>
+      📝 <b>第三关：宇宙密码</b>（填空题 6题 × 10分）<br>
+      🧩 <b>第四关：太空任务</b>（情境应用 4题 × 15分）<br>
+      🏆 <b>总分 300分</b>
+    </div>
+    <button class="btn-start" onclick="startGame()">🚀 发射！</button>
+  </div>
+</div>
+
+<!-- MC -->
+<div class="screen" id="screenMC">
+  <div class="card">
+    <div class="q-header"><span class="q-round">🔥 第一关：星海迷航</span><div class="q-status"><span class="q-timer" id="mcTimer">⏱15</span><span class="q-num" id="mcQNum">1/10</span></div></div>
+    <span class="q-type-tag tag-mc">选择题</span>
+    <div class="q-text" id="mcQuestion"></div>
+    <div class="options" id="mcOptions"></div>
+    <div class="feedback" id="mcFeedback"></div>
+    <div class="btn-row"><button class="btn btn-next" id="mcNextBtn" style="display:none" onclick="nextMC()">下一题 ▶</button></div>
+  </div>
+</div>
+
+<!-- TF -->
+<div class="screen" id="screenTF">
+  <div class="card">
+    <div class="q-header"><span class="q-round">⚖️ 第二关：真假裁判</span><div class="q-status"><span class="q-timer" id="tfTimer">⏱8</span><span class="q-num" id="tfQNum">1/8</span></div></div>
+    <span class="q-type-tag tag-tf">判断题</span>
+    <div class="q-text" id="tfQuestion"></div>
+    <div class="tf-row">
+      <button class="btn btn-tf btn-true" onclick="answerTF(true)">✅ 对的</button>
+      <button class="btn btn-tf btn-false" onclick="answerTF(false)">❌ 错的</button>
+    </div>
+    <div class="feedback" id="tfFeedback"></div>
+    <div class="btn-row"><button class="btn btn-next" id="tfNextBtn" style="display:none" onclick="nextTF()">下一题 ▶</button></div>
+  </div>
+</div>
+
+<!-- FB -->
+<div class="screen" id="screenFB">
+  <div class="card">
+    <div class="q-header"><span class="q-round">📝 第三关：宇宙密码</span><span class="q-num" id="fbQNum">1/6</span></div>
+    <span class="q-type-tag tag-fb">填空题</span>
+    <div class="q-text" id="fbQuestion"></div>
+    <div class="blank-reveal" id="fbReveal"></div>
+    <div class="btn-row" style="flex-wrap:wrap">
+      <button class="btn btn-reveal" id="fbRevealBtn" onclick="revealFB()">🔍 查看答案</button>
+      <div id="fbConfirm" style="display:none;gap:12px;margin-top:8px"><button class="btn" style="background:#4caf50;color:#fff" onclick="fbScore(true)">✅ +10分</button><button class="btn" style="background:#f44336;color:#fff" onclick="fbScore(false)">❌ 没答对</button></div>
+      <button class="btn btn-next" id="fbNextBtn" style="display:none" onclick="nextFB()">下一题 ▶</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCENARIO -->
+<div class="screen" id="screenSC">
+  <div class="card">
+    <div class="q-header"><span class="q-round">🧩 第四关：太空任务</span><div class="q-status"><span class="q-timer" id="scTimer">⏱20</span><span class="q-num" id="scQNum">1/4</span></div></div>
+    <span class="q-type-tag tag-sc">情境应用（15分）</span>
+    <div class="scene-img" id="scImage"></div>
+    <div class="sc-q" id="scQuestion"></div>
+    <div class="options" id="scOptions"></div>
+    <div class="feedback" id="scFeedback"></div>
+    <div class="btn-row"><button class="btn btn-next" id="scNextBtn" style="display:none" onclick="nextSC()">下一题 ▶</button></div>
+  </div>
+</div>
+
+<!-- ROUND COMPLETE -->
+<div class="screen" id="screenRound">
+  <div class="card round-complete">
+    <h2>🎉 任务完成！</h2>
+    <div class="round-score">
+      <div class="rs-card"><div class="rn">总分</div><div class="rs" id="finalTotal">0</div></div>
+    </div>
+    <div style="font-size:22px;font-weight:900;margin:16px 0;color:#ffd700" id="winner"></div>
+    <button class="btn btn-start" style="font-size:18px" onclick="location.reload()">🔄 再闯一次</button>
+  </div>
+</div>
+
+<div class="confetti" id="confetti"></div>
+
+<script>
+// ====== AUDIO ======
+const AC=window.AudioContext||window.webkitAudioContext;
+function beep(f,d,t){try{const a=new AC();const o=a.createOscillator();const g=a.createGain();o.connect(g);g.connect(a.destination);o.type=t||'square';o.frequency.value=f;g.gain.value=0.12;o.start();o.stop(a.currentTime+d)}catch(e){}}
+function sfx(s){if(s==='correct'){beep(523,0.1);setTimeout(()=>beep(659,0.1),100);setTimeout(()=>beep(784,0.15),200)}else if(s==='wrong'){beep(200,0.3,'sawtooth')}else{beep(440,0.05)}}
+
+// ====== STATE ======
+let gs={score:0,mcIdx:0,tfIdx:0,fbIdx:0,scIdx:0,mcAns:false,tfAns:false,fbRev:false,scAns:false,timer:null,time:0};
+
+// ====== MC QUESTIONS (改编) ======
+const mcQuestions=[
+  {q:'一位宇航员站在月球上仰望天空，他能看到什么样的"天空"？',opts:['蔚蓝的天空和白云','一片漆黑，能看到星星','和地球上一样的蓝天','灰蒙蒙的雾气'],ans:1},
+  {q:'科考队员在南极考察时，打开水龙头发现流出的淡水很少，大部分水都以冰的形式存在。这说明了什么？',opts:['地球上的水够用','可利用的淡水资源有限','南极没有水','海水可以随时转化成淡水'],ans:1},
+  {q:'小明用放大镜在太阳下照了一张白纸，纸很快冒烟燃烧了。这个实验告诉我们什么？',opts:['放大镜会发光','太阳光是强大的能量来源','白纸很危险','放大镜是光源'],ans:1},
+  {q:'农历八月十五晚上，小红在院子里赏月，发现月亮又圆又亮。月光是从哪里来的？',opts:['月亮自己发光','月亮反射太阳光','星星聚集的光','地球的反光'],ans:1},
+  {q:'小王在家做了一个实验：把手电筒从左往右慢慢移动，照射一个水杯。他观察到水杯的影子会怎样变化？',opts:['影子不动','影子跟着往右跑','影子往相反方向跑','影子消失'],ans:2},
+  {q:'科学家发现，在太阳系中有一颗行星的温度特别高（约480℃），大气非常浓厚。这最可能是哪颗行星？',opts:['水星','金星','火星','木星'],ans:1},
+  {q:'几位同学在模拟环形山形成的实验中，用了大小不同的玻璃球从不同高度落到面粉上。结果发现：大球从高处砸出的坑比小球从低处砸出的坑更深更大。这说明环形山的大小和形状与什么有关？',opts:['月球表面的颜色','陨石的大小和撞击速度','月球的温度','月球离地球的距离'],ans:1},
+  {q:'老师问："月球上没有大气层，会给月球带来什么后果？"以下哪个答案最完整？',opts:['月球更美','昼夜温差极大，容易被陨石撞击','月球会飞走','月球会发光'],ans:1},
+  {q:'小刚在操场上测了一天中旗杆影子的长度，他记录下来：早上很长 → 中午很短 → 傍晚很长。太阳的位置是怎样变化的？',opts:['低→高→低','高→低→高','一直不变','东→西→东'],ans:0},
+  {q:'航天员在太空中看地球，发现地球是一颗蓝色的星球。蓝色主要是因为什么？',opts:['大气层是蓝色的','海洋面积广阔','陆地是蓝色的','太阳光照的幻觉'],ans:1},
+];
+
+// ====== TF QUESTIONS (改编) ======
+const tfQuestions=[
+  {q:'小华说："月球的表面坑坑洼洼，都是被宇宙陨石砸出来的。"——小华说得对吗？',ans:true},
+  {q:'小林说："地球上的水太多了，我们可以随便浪费。"——她的说法正确吗？',ans:false,explain:'地球上的淡水资源非常有限，需要节约用水。'},
+  {q:'小涛说："日晷是古代人戴在手上的手表，用来计时的。"——他说得对吗？',ans:false,explain:'日晷是放在地上的计时仪器，利用影子计时，不是手表。'},
+  {q:'小美说："太阳比地球大得多，如果把太阳比作一个篮球，地球就像一颗绿豆。"——这个比喻恰当吗？',ans:true},
+  {q:'小凯说："月球白天热到120℃，晚上冷到-180℃，但嫦娥玉兔可以正常生活。"——他说的对吗？',ans:false,explain:'月球昼夜温差极大，没有液态水也没有大气层，未发现生命。'},
+  {q:'小雅说："八大行星中木星最大，水星最小。"——她的说法正确吗？',ans:true},
+  {q:'小杰说："因为地球在运转，所以早晨和傍晚我们可以看到长长的影子，中午影子最短。"——他说的对吗？',ans:true},
+  {q:'小雷说："只要物体挡住光就能形成影子，不需要别的东西。"——他说得全面吗？',ans:false,explain:'还需要一个呈现影子的平面（屏），光源+遮挡物+屏三者缺一不可。'},
+];
+
+// ====== FB QUESTIONS (改编) ======
+const fbQuestions=[
+  {q:'地球是太阳系中唯一已知有<span style="border-bottom:3px solid #8ab4f8;padding:0 30px"></span>的行星。',ans:['生命']},
+  {q:'月球上亮的地方是高地叫<span style="border-bottom:3px solid #8ab4f8;padding:0 30px"></span>，暗的地方是低地叫<span style="border-bottom:3px solid #8ab4f8;padding:0 20px"></span>。',ans:['月陆','月海']},
+  {q:'像太阳这样自身能发光的物体叫<span style="border-bottom:3px solid #8ab4f8;padding:0 30px"></span>，月亮和镜子<span style="border-bottom:3px solid #8ab4f8;padding:0 30px"></span>光源。',ans:['光源','不是']},
+  {q:'太阳系的八大行星中，离太阳最近的是<span style="border-bottom:3px solid #8ab4f8;padding:0 30px"></span>，最远的是<span style="border-bottom:3px solid #8ab4f8;padding:0 25px"></span>。',ans:['水星','海王星']},
+  {q:'日晷是利用<span style="border-bottom:3px solid #8ab4f8;padding:0 30px"></span>的<span style="border-bottom:3px solid #8ab4f8;padding:0 25px"></span>方向变化来<span style="border-bottom:3px solid #8ab4f8;padding:0 25px"></span>的仪器。',ans:['太阳','影子','计时']},
+  {q:'月球和地球最大的不同是月球没有<span style="border-bottom:3px solid #8ab4f8;padding:0 25px"></span>层、没有液态<span style="border-bottom:3px solid #8ab4f8;padding:0 25px"></span>、没有发现<span style="border-bottom:3px solid #8ab4f8;padding:0 25px"></span>。',ans:['大气','水','生命']},
+];
+
+// ====== SCENARIO QUESTIONS (改编) ======
+const scQuestions=[
+  {
+    q:'学校天文社团准备在操场上搭建一个日晷台。指导老师说：日晷的晷针必须指向正北方向。团长小刘用指南针确定了正北，但有人说"指南针指的不是真正的北方"。请问，指南针指的是什么方向？为什么不能直接用来给日晷定位？',
+    image: '<svg width="220" height="160" viewBox="0 0 220 160"><circle cx="110" cy="75" r="60" fill="none" stroke="#8ab4f8" stroke-width="2"/><text x="110" y="20" text-anchor="middle" fill="#ffd700" font-size="14">N</text><text x="110" y="145" text-anchor="middle" fill="#8ab4f8" font-size="14">S</text><text x="25" y="80" text-anchor="middle" fill="#8ab4f8" font-size="14">W</text><text x="195" y="80" text-anchor="middle" fill="#8ab4f8" font-size="14">E</text><polygon points="110,45 106,65 114,65" fill="#ff6b6b"/><polygon points="110,110 106,90 114,90" fill="#fff"/><line x1="110" y1="55" x2="110" y2="100" stroke="#ffd700" stroke-width="2"/></svg>',
+    opts:['指南针指的北就是正北方，可以直接用','指南针指的是地磁北极方向，和地理北极有一定偏差','指南针指的是太阳的方向','指南针指的是月球的方向'],
+    ans:1,
+    explain:'指南针指向的是地磁北极，它和地理正北方（北极点）并不完全重合，有一定偏差。日晷精确定位需要用地理正北。'
+  },
+  {
+    q:'三年级的小同学做了一个实验：在一盆干面粉上用不同大小的石头从不同高度丢下去。大石头从高处丢下时砸出又大又深的坑；小石头从低处丢下时砸出又小又浅的坑。老师问："通过这个实验，你能对月球上环形山的形成得出什么结论？"',
+    image: '<svg width="300" height="130" viewBox="0 0 300 130"><rect x="10" y="20" width="100" height="90" rx="8" fill="rgba(100,150,255,0.1)" stroke="rgba(100,150,255,0.3)"/><ellipse cx="40" cy="90" rx="25" ry="12" fill="rgba(255,215,0,0.3)"/><circle cx="60" cy="50" r="8" fill="#aaa"/><text x="35" y="120" text-anchor="middle" fill="#8899bb" font-size="11">大球钻深坑</text><rect x="130" y="20" width="100" height="90" rx="8" fill="rgba(100,150,255,0.1)" stroke="rgba(100,150,255,0.3)"/><ellipse cx="160" cy="85" rx="10" ry="5" fill="rgba(255,215,0,0.2)"/><circle cx="180" cy="65" r="4" fill="#aaa"/><text x="155" y="120" text-anchor="middle" fill="#8899bb" font-size="11">小球浅坑</text><text x="250" y="65" text-anchor="middle" fill="#8ab4f8" font-size="13">→</text><text x="270" y="60" text-anchor="middle" fill="#81c784" font-size="11">陨石越大</text><text x="270" y="78" text-anchor="middle" fill="#81c784" font-size="11">速度越快</text><text x="270" y="96" text-anchor="middle" fill="#81c784" font-size="11">坑越大</text></svg>',
+    opts:['环形山的形状都是圆形的，和撞击无关','环形山是陨石撞击形成的，陨石越大、速度越快，环形山越大','环形山是月亮自己长出来的','面粉实验和月球没有关系'],
+    ans:1,
+    explain:'模拟实验说明：环形山是陨石撞击形成的。陨石的大小（质量）和撞击速度决定了环形山的大小和深度。'
+  },
+  {
+    q:'王老师在科学课上展示了两张照片：一张是地球的卫星图（蓝色为主），一张是月球的卫星图（灰白色、布满环形山）。王老师问："地球上为什么有液态水和生命，而月球没有？请你从两个不同方面分析原因。"',
+    image: '<svg width="280" height="90" viewBox="0 0 280 90"><circle cx="70" cy="45" r="30" fill="#4a90d9" opacity="0.6" stroke="#8ab4f8" stroke-width="2"/><text x="70" y="50" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">地球</text><text x="70" y="90" text-anchor="middle" fill="#8899bb" font-size="10">有大气·有水·有生命</text><circle cx="210" cy="45" r="20" fill="#aaa" stroke="#ccc" stroke-width="2"/><text x="210" y="50" text-anchor="middle" fill="#333" font-size="11" font-weight="700">月球</text><text x="210" y="75" text-anchor="middle" fill="#8899bb" font-size="10">无大气·无水·无生命</text></svg>',
+    opts:['地球有大气层和液态水，月球没有','地球离太阳近，月球离太阳远','地球是行星，月球是卫星','月球太小了装不下水'],
+    ans:0,
+    explain:'地球有大气层保护（保温、阻挡陨石），有液态水；月球没有大气层，没有液态水，昼夜温差极大（-180℃~120℃），不具备生命存在的条件。'
+  },
+  {
+    q:'一位天文爱好者用望远镜观测夜空，想分清哪颗是恒星、哪颗是行星。他看到天上有：一颗闪烁的亮点（⭐）、一颗不闪烁的亮点（🪐）。他应该怎样区分？请选择最佳的判断方法。',
+    image: '<svg width="220" height="100" viewBox="0 0 220 100"><circle cx="60" cy="50" r="12" fill="#ffd700" opacity="0.8"><animate attributeName="opacity" values="0.3;1;0.3" dur="1s" repeatCount="indefinite"/></circle><text x="60" y="80" text-anchor="middle" fill="#ffd700" font-size="12">闪烁=恒星</text><circle cx="160" cy="50" r="10" fill="#8ab4f8"/><text x="160" y="80" text-anchor="middle" fill="#8ab4f8" font-size="12">不闪烁=行星</text></svg>',
+    opts:['看谁更亮，更亮的就是恒星','闪烁的是恒星（自身发光），不闪烁的是行星（反射光）','看谁更大，更大的就是行星','看颜色，黄色就是恒星'],
+    ans:1,
+    explain:'恒星自身发光但距离极远，受大气扰动会闪烁；行星反射太阳光，距离较近，通常不闪烁。'
+  },
+];
+
+// ====== QUIZ LOG & NAV ======
+let quizLog={mc:new Array(mcQuestions.length).fill(null),tf:new Array(tfQuestions.length).fill(null),fb:new Array(fbQuestions.length).fill(null),sc:new Array(scQuestions.length).fill(null)};
+function renderNav(){const nc=document.getElementById('navContent');nc.innerHTML='<div class="nav-round">🔥 第一关：星海迷航</div><div class="nav-grid">'+quizLog.mc.map((v,i)=>{const cls=i===gs.mcIdx&&document.getElementById('screenMC').classList.contains('active')?'nav-dot current':v==='ok'?'nav-dot ok':v==='err'?'nav-dot err':v==='timeout'?'nav-dot timeout':'nav-dot';return'<div class="'+cls+'" onclick="jumpMC('+i+')">'+(i+1)+'</div>'}).join('')+'</div><div class="nav-round">⚖️ 第二关：真假裁判</div><div class="nav-grid">'+quizLog.tf.map((v,i)=>{const cls=i===gs.tfIdx&&document.getElementById('screenTF').classList.contains('active')?'nav-dot current':v==='ok'?'nav-dot ok':v==='err'?'nav-dot err':v==='timeout'?'nav-dot timeout':'nav-dot';return'<div class="'+cls+'" onclick="jumpTF('+i+')">'+(i+1)+'</div>'}).join('')+'</div><div class="nav-round">📝 第三关：宇宙密码</div><div class="nav-grid">'+quizLog.fb.map((v,i)=>{const cls=i===gs.fbIdx&&document.getElementById('screenFB').classList.contains('active')?'nav-dot current':v==='ok'?'nav-dot ok':v==='err'?'nav-dot err':v==='timeout'?'nav-dot timeout':'nav-dot';return'<div class="'+cls+'" onclick="jumpFB('+i+')">'+(i+1)+'</div>'}).join('')+'</div><div class="nav-round">🧩 第四关：太空任务</div><div class="nav-grid">'+quizLog.sc.map((v,i)=>{const cls=i===gs.scIdx&&document.getElementById('screenSC').classList.contains('active')?'nav-dot current':v==='ok'?'nav-dot ok':v==='err'?'nav-dot err':v==='timeout'?'nav-dot timeout':'nav-dot';return'<div class="'+cls+'" onclick="jumpSC('+i+')">'+(i+1)+'</div>'}).join('')+'</div>'}
+function toggleNav(){const p=document.getElementById('navPanel');const b=document.getElementById('navBackdrop');if(p.classList.contains('open')){p.classList.remove('open');b.classList.remove('open')}else{renderNav();p.classList.add('open');b.classList.add('open')}}
+function jumpMC(i){stopTimer();gs.mcIdx=i;loadMC();toggleNav()}
+function jumpTF(i){stopTimer();gs.tfIdx=i;loadTF();toggleNav()}
+function jumpFB(i){stopTimer();gs.fbIdx=i;loadFB();toggleNav()}
+function jumpSC(i){stopTimer();gs.scIdx=i;loadSC();toggleNav()}
+
+// ====== TIMER ======
+function startTimer(sec,elId,cb){clearInterval(gs.timer);gs.time=sec;const el=document.getElementById(elId);el.textContent='⏱'+sec;el.classList.remove('warning');gs.timer=setInterval(()=>{gs.time--;el.textContent='⏱'+gs.time;if(gs.time<=5)el.classList.add('warning');if(gs.time<=0){clearInterval(gs.timer);cb()}},1000)}
+function stopTimer(){clearInterval(gs.timer)}
+function updateScores(){document.getElementById('totalScore').textContent=gs.score}
+function switchScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+
+// ====== START ======
+function startGame(){sfx('click');gs.mcIdx=0;gs.tfIdx=0;gs.fbIdx=0;gs.scIdx=0;loadMC()}
+
+// ====== MC ======
+function loadMC(){if(gs.mcIdx>=mcQuestions.length){switchScreen('screenTF');loadTF();return}const q=mcQuestions[gs.mcIdx];document.getElementById('mcQNum').textContent=(gs.mcIdx+1)+'/10';document.getElementById('mcQuestion').textContent=q.q;document.getElementById('mcFeedback').textContent='';document.getElementById('mcFeedback').className='feedback';document.getElementById('mcNextBtn').style.display='none';gs.mcAns=false;const d=document.getElementById('mcOptions');d.innerHTML='';const L=['A','B','C','D'];q.opts.forEach((o,i)=>{const b=document.createElement('button');b.className='opt-btn';b.innerHTML='<b>'+L[i]+'</b> '+o;b.onclick=()=>ansMC(i);d.appendChild(b)});switchScreen('screenMC');startTimer(15,'mcTimer',()=>{if(!gs.mcAns)timeUpMC()})}
+function timeUpMC(){gs.mcAns=true;quizLog.mc[gs.mcIdx]='timeout';const q=mcQuestions[gs.mcIdx];document.querySelectorAll('#mcOptions .opt-btn').forEach((b,i)=>{b.style.pointerEvents='none';if(i===q.ans)b.classList.add('correct')});document.getElementById('mcFeedback').textContent='⏰ 时间到！正确答案是 '+['A','B','C','D'][q.ans];document.getElementById('mcFeedback').className='feedback wrong';sfx('wrong');document.getElementById('mcNextBtn').style.display='inline-block'}
+function ansMC(i){if(gs.mcAns)return;gs.mcAns=true;stopTimer();const q=mcQuestions[gs.mcIdx];const ok=i===q.ans;document.querySelectorAll('#mcOptions .opt-btn').forEach((b,j)=>{b.style.pointerEvents='none';if(j===q.ans)b.classList.add('correct');if(j===i&&!ok)b.classList.add('wrong')});const fb=document.getElementById('mcFeedback');if(ok){fb.textContent='✅ 回答正确！+10分';fb.className='feedback correct';sfx('correct');gs.score+=10;quizLog.mc[gs.mcIdx]='ok'}else{fb.textContent='❌ 回答错误！正确答案是 '+['A','B','C','D'][q.ans];fb.className='feedback wrong';sfx('wrong');quizLog.mc[gs.mcIdx]='err'}updateScores();document.getElementById('mcNextBtn').style.display='inline-block'}
+function nextMC(){sfx('click');stopTimer();gs.mcIdx++;loadMC()}
+
+// ====== TF ======
+function loadTF(){if(gs.tfIdx>=tfQuestions.length){switchScreen('screenFB');loadFB();return}const q=tfQuestions[gs.tfIdx];document.getElementById('tfQNum').textContent=(gs.tfIdx+1)+'/8';document.getElementById('tfQuestion').textContent=q.q;document.getElementById('tfFeedback').textContent='';document.getElementById('tfFeedback').className='feedback';document.getElementById('tfNextBtn').style.display='none';gs.tfAns=false;document.querySelectorAll('.btn-tf').forEach(b=>{b.classList.remove('correct','wrong');b.style.pointerEvents='auto'});switchScreen('screenTF');startTimer(8,'tfTimer',()=>{if(!gs.tfAns)timeUpTF()})}
+function timeUpTF(){gs.tfAns=true;quizLog.tf[gs.tfIdx]='timeout';const q=tfQuestions[gs.tfIdx];document.querySelectorAll('.btn-tf').forEach(b=>{b.style.pointerEvents='none'});if(q.ans)document.querySelector('.btn-true').classList.add('correct');else document.querySelector('.btn-false').classList.add('correct');document.getElementById('tfFeedback').textContent='⏰ 时间到！'+(q.explain||'');document.getElementById('tfFeedback').className='feedback wrong';sfx('wrong');document.getElementById('tfNextBtn').style.display='inline-block'}
+function answerTF(u){if(gs.tfAns)return;gs.tfAns=true;stopTimer();const q=tfQuestions[gs.tfIdx];const ok=u===q.ans;document.querySelectorAll('.btn-tf').forEach(b=>{b.style.pointerEvents='none'});if(q.ans){document.querySelector('.btn-true').classList.add('correct');if(!u)document.querySelector('.btn-false').classList.add('wrong')}else{document.querySelector('.btn-false').classList.add('correct');if(u)document.querySelector('.btn-true').classList.add('wrong')}const fb=document.getElementById('tfFeedback');if(ok){fb.textContent='✅ 判断正确！+10分';fb.className='feedback correct';sfx('correct');gs.score+=10;quizLog.tf[gs.tfIdx]='ok'}else{fb.textContent='❌ 判断错误！'+(q.explain||'');fb.className='feedback wrong';sfx('wrong');quizLog.tf[gs.tfIdx]='err'}updateScores();document.getElementById('tfNextBtn').style.display='inline-block'}
+function nextTF(){sfx('click');stopTimer();gs.tfIdx++;loadTF()}
+
+// ====== FB ======
+function loadFB(){if(gs.fbIdx>=fbQuestions.length){switchScreen('screenSC');loadSC();return}const q=fbQuestions[gs.fbIdx];document.getElementById('fbQNum').textContent=(gs.fbIdx+1)+'/6';document.getElementById('fbQuestion').innerHTML=q.q;document.getElementById('fbReveal').style.display='none';document.getElementById('fbRevealBtn').style.display='inline-block';document.getElementById('fbConfirm').style.display='none';document.getElementById('fbNextBtn').style.display='none';gs.fbRev=false;switchScreen('screenFB')}
+function revealFB(){if(gs.fbRev)return;gs.fbRev=true;const q=fbQuestions[gs.fbIdx];document.getElementById('fbReveal').innerHTML='答案：<span class="ans">'+q.ans.join('、')+'</span>';document.getElementById('fbReveal').style.display='block';document.getElementById('fbRevealBtn').style.display='none';document.getElementById('fbConfirm').style.display='flex'}
+function fbScore(ok){document.getElementById('fbConfirm').style.display='none';if(ok){sfx('correct');gs.score+=10;quizLog.fb[gs.fbIdx]='ok'}else{sfx('wrong');quizLog.fb[gs.fbIdx]='err'}updateScores();document.getElementById('fbNextBtn').style.display='inline-block'}
+function nextFB(){sfx('click');gs.fbIdx++;loadFB()}
+
+// ====== SCENARIO ======
+function loadSC(){if(gs.scIdx>=scQuestions.length){completeRound();return}const q=scQuestions[gs.scIdx];document.getElementById('scQNum').textContent=(gs.scIdx+1)+'/4';document.getElementById('scImage').innerHTML=q.image;document.getElementById('scQuestion').textContent=q.q;document.getElementById('scFeedback').textContent='';document.getElementById('scFeedback').className='feedback';document.getElementById('scNextBtn').style.display='none';gs.scAns=false;const d=document.getElementById('scOptions');d.innerHTML='';const L=['A','B','C','D'];q.opts.forEach((o,i)=>{const b=document.createElement('button');b.className='opt-btn';b.innerHTML='<b>'+L[i]+'</b> '+o;b.onclick=()=>ansSC(i);d.appendChild(b)});switchScreen('screenSC');startTimer(25,'scTimer',()=>{if(!gs.scAns)timeUpSC()})}
+function timeUpSC(){gs.scAns=true;quizLog.sc[gs.scIdx]='timeout';const q=scQuestions[gs.scIdx];document.querySelectorAll('#scOptions .opt-btn').forEach((b,i)=>{b.style.pointerEvents='none';if(i===q.ans)b.classList.add('correct')});document.getElementById('scFeedback').textContent='⏰ 时间到！'+(q.explain||'');document.getElementById('scFeedback').className='feedback wrong';sfx('wrong');document.getElementById('scNextBtn').style.display='inline-block'}
+function ansSC(i){if(gs.scAns)return;gs.scAns=true;stopTimer();const q=scQuestions[gs.scIdx];const ok=i===q.ans;document.querySelectorAll('#scOptions .opt-btn').forEach((b,j)=>{b.style.pointerEvents='none';if(j===q.ans)b.classList.add('correct');if(j===i&&!ok)b.classList.add('wrong')});const fb=document.getElementById('scFeedback');if(ok){fb.textContent='✅ 回答正确！+15分';fb.className='feedback correct';sfx('correct');gs.score+=15;quizLog.sc[gs.scIdx]='ok'}else{fb.textContent='❌ 回答错误！'+(q.explain||'');fb.className='feedback wrong';sfx('wrong');quizLog.sc[gs.scIdx]='err'}updateScores();document.getElementById('scNextBtn').style.display='inline-block'}
+function nextSC(){sfx('click');stopTimer();gs.scIdx++;loadSC()}
+
+// ====== COMPLETE ======
+function completeRound(){stopTimer();switchScreen('screenRound');document.getElementById('finalTotal').textContent=gs.score;document.getElementById('winner').textContent='🏆 你的总分：'+gs.score+' 分！';launchConfetti()}
+function launchConfetti(){const c=document.getElementById('confetti');c.classList.add('active');c.innerHTML='';const cols=['#ffd700','#ff6b6b','#5b9bd5','#4caf50','#f44336','#8ab4f8','#f39c12','#9b59b6','#00ffff'];for(let i=0;i<100;i++){const p=document.createElement('div');p.className='confetti-piece';p.style.left=Math.random()*100+'%';p.style.background=cols[Math.floor(Math.random()*cols.length)];p.style.animationDuration=(2+Math.random()*3)+'s';p.style.animationDelay=Math.random()*1.5+'s';p.style.width=(6+Math.random()*10)+'px';p.style.height=(6+Math.random()*10)+'px';c.appendChild(p)}setTimeout(()=>{c.classList.remove('active')},4000)}
+</script>
+</body>
+</html>

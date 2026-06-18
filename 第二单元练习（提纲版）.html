@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>动物的一生 · 复习闯关（照提纲版）</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:linear-gradient(160deg,#1a5c2a 0%,#2d8a4e 50%,#1a5c2a 100%);min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden}
+.top-bar{width:100%;max-width:1000px;display:flex;justify-content:space-between;align-items:center;padding:16px 24px;color:#fff}
+.top-bar .title{font-size:22px;font-weight:900;text-shadow:1px 1px 3px rgba(0,0,0,0.3)}
+.scores{display:flex;gap:20px}
+.score-card{background:rgba(255,255,255,0.15);border-radius:12px;padding:8px 18px;text-align:center;min-width:80px;backdrop-filter:blur(4px)}
+.score-card .name{font-size:13px;opacity:0.85}
+.score-card .num{font-size:28px;font-weight:900}
+.score-card.total{border:2px solid #ffd700}
+.screen{display:none;width:100%;max-width:900px;padding:0 20px 30px}
+.screen.active{display:block;animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.card{background:rgba(255,255,255,0.96);border-radius:18px;padding:30px;box-shadow:0 10px 40px rgba(0,0,0,0.25)}
+.card h2{font-size:26px;color:#1a5c2a;margin-bottom:16px;text-align:center}
+.card .q-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.q-round{font-size:15px;color:#666;font-weight:700}
+.q-status{display:flex;gap:14px;align-items:center}
+.q-timer{font-size:26px;font-weight:900;color:#e74c3c;min-width:55px;text-align:center}
+.q-timer.warning{animation:blink .5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.q-num{font-size:15px;color:#999}
+.q-text{font-size:20px;line-height:1.7;color:#333;margin:16px 0 20px;padding:14px 18px;background:#f0faf3;border-radius:10px}
+.options{display:grid;gap:10px}
+.opt-btn{display:block;width:100%;text-align:left;padding:14px 18px;border:2px solid #d4edda;border-radius:12px;background:#fff;font-size:17px;cursor:pointer;transition:all .2s}
+.opt-btn:hover{border-color:#2d8a4e;background:#f0faf3;transform:translateX(4px)}
+.opt-btn.correct{border-color:#27ae60;background:#d4edda;color:#155724;font-weight:700}
+.opt-btn.wrong{border-color:#e74c3c;background:#fdeaea;color:#721c24}
+.opt-btn b{color:#2d8a4e;margin-right:8px}
+.feedback{margin-top:16px;padding:12px 18px;border-radius:10px;font-size:17px;font-weight:700;text-align:center;display:none}
+.feedback.correct{display:block;background:#d4edda;color:#155724}
+.feedback.wrong{display:block;background:#fdeaea;color:#721c24}
+.feedback.info{display:block;background:#fff3cd;color:#856404}
+.btn-row{display:flex;gap:12px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.btn{padding:12px 28px;border-radius:25px;border:none;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-next{background:#2d8a4e;color:#fff}
+.btn-next:hover{background:#1a5c2a}
+.btn-reveal{background:#ffc107;color:#333}
+.btn-reveal:hover{background:#e0a800}
+.btn-tf{width:200px;padding:18px;font-size:22px;border-radius:14px}
+.btn-true{background:#27ae60;color:#fff}
+.btn-true:hover{background:#1e8449}
+.btn-false{background:#e74c3c;color:#fff}
+.btn-false:hover{background:#c0392b}
+.tf-row{display:flex;gap:20px;justify-content:center}
+.start{text-align:center;padding:40px 0}
+.start h1{font-size:36px;color:#1a5c2a;margin-bottom:8px}
+.start .desc{font-size:16px;color:#666;margin-bottom:24px;line-height:1.6}
+.start .rules{text-align:left;display:inline-block;font-size:15px;color:#555;line-height:2;margin-bottom:24px}
+.btn-start{padding:16px 50px;font-size:22px;background:linear-gradient(135deg,#ffd700,#f0a500);color:#1a5c2a;border:none;border-radius:30px;font-weight:900;cursor:pointer;box-shadow:0 6px 20px rgba(240,165,0,0.4);transition:all .25s}
+.btn-start:hover{transform:scale(1.05);box-shadow:0 8px 28px rgba(240,165,0,0.5)}
+.round-complete{text-align:center;padding:30px}
+.round-complete h2{font-size:30px;color:#1a5c2a;margin-bottom:16px}
+.round-score{display:flex;justify-content:center;gap:40px;margin:20px 0}
+.rs-card{background:#f0faf3;border-radius:14px;padding:20px 30px;text-align:center}
+.rs-card .rn{font-size:15px;color:#666;margin-bottom:4px}
+.rs-card .rs{font-size:36px;font-weight:900;color:#1a5c2a}
+.confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:200;display:none}
+.confetti.active{display:block}
+.confetti-piece{position:absolute;width:10px;height:10px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{0%{transform:translateY(-100px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+.q-type-tag{display:inline-block;font-size:12px;padding:3px 10px;border-radius:12px;font-weight:700;margin-bottom:8px}
+.tag-mc{background:#d4edda;color:#155724}
+.tag-tf{background:#fff3cd;color:#856404}
+.tag-fb{background:#cce5ff;color:#004085}
+.blank-reveal{margin-top:14px;padding:14px 18px;background:#e8f5e9;border-radius:10px;font-size:18px;display:none}
+.blank-reveal .ans{color:#1a5c2a;font-weight:900;font-size:20px}
+.nav-panel{position:fixed;right:0;top:0;width:260px;height:100vh;background:rgba(255,255,255,0.96);z-index:200;transform:translateX(100%);transition:transform 0.3s;box-shadow:-4px 0 20px rgba(0,0,0,0.15);overflow-y:auto;padding:20px 14px 40px}
+.nav-panel.open{transform:translateX(0)}
+.nav-backdrop{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.25);z-index:199;display:none}
+.nav-backdrop.open{display:block}
+.nav-toggle{position:fixed;right:8px;top:50%;transform:translateY(-50%);z-index:201;width:34px;height:90px;border-radius:17px 0 0 17px;border:none;background:rgba(0,0,0,0.45);color:#fff;font-size:15px;cursor:pointer;writing-mode:vertical-lr;letter-spacing:3px;font-weight:700;transition:all 0.2s}
+.nav-toggle:hover{background:rgba(0,0,0,0.65);width:38px}
+.nav-close{float:right;background:none;border:none;font-size:22px;cursor:pointer;color:#999;margin:-4px -4px 0 0}
+.nav-title{font-size:16px;font-weight:900;color:#333;margin-bottom:14px}
+.nav-round{font-size:13px;font-weight:700;color:#666;margin:12px 0 6px}
+.nav-grid{display:flex;flex-wrap:wrap;gap:6px}
+.nav-dot{width:32px;height:32px;border-radius:7px;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;background:#fff;transition:all 0.15s}
+.nav-dot:hover{transform:scale(1.12)}
+.nav-dot.current{border-color:#333;box-shadow:0 0 0 3px rgba(0,0,0,0.12)}
+.nav-dot.ok{background:#d4edda;border-color:#27ae60;color:#155724}
+.nav-dot.err{background:#fdeaea;border-color:#e74c3c;color:#721c24}
+.nav-dot.timeout{background:#fff3cd;border-color:#f39c12;color:#856404}
+</style>
+</head>
+<body>
+
+<button class="nav-toggle" onclick="toggleNav()">📋 题目导航</button>
+<div class="nav-backdrop" id="navBackdrop" onclick="toggleNav()"></div>
+<div class="nav-panel" id="navPanel">
+  <button class="nav-close" onclick="toggleNav()">✕</button>
+  <div class="nav-title">📋 题目导航</div>
+  <div id="navContent"></div>
+</div>
+
+<div class="top-bar">
+  <div class="title">🐣 动物的一生 · 复习闯关</div>
+  <div class="scores">
+    <div class="score-card total"><div class="name">总分</div><div class="num" id="totalScore">0</div></div>
+  </div>
+</div>
+
+<!-- START -->
+<div class="screen active" id="screenStart">
+  <div class="card start">
+    <h1>🐣 动物的一生 · 复习闯关</h1>
+    <div class="desc">教科版 · 三年级下册 · 第二单元 · 照提纲版</div>
+    <div class="rules">
+      🔥 <b>第一关：火眼金睛</b>（选择题 10题 × 10分）<br>
+      ⚖️ <b>第二关：明辨是非</b>（判断题 8题 × 10分）<br>
+      📝 <b>第三关：记忆达人</b>（填空题 8题 × 10分）<br>
+      🏆 <b>总分 260分</b>
+    </div>
+    <button class="btn-start" onclick="startGame()">🚀 开始闯关</button>
+  </div>
+</div>
+
+<!-- MULTIPLE CHOICE -->
+<div class="screen" id="screenMC">
+  <div class="card">
+    <div class="q-header">
+      <span class="q-round">🔥 第一关：火眼金睛</span>
+      <div class="q-status"><span class="q-timer" id="mcTimer">⏱15</span><span class="q-num" id="mcQNum">1/10</span></div>
+    </div>
+    <span class="q-type-tag tag-mc">选择题</span>
+    <div class="q-text" id="mcQuestion"></div>
+    <div class="options" id="mcOptions"></div>
+    <div class="feedback" id="mcFeedback"></div>
+    <div class="btn-row"><button class="btn btn-next" id="mcNextBtn" style="display:none" onclick="nextMC()">下一题 ▶</button></div>
+  </div>
+</div>
+
+<!-- TRUE/FALSE -->
+<div class="screen" id="screenTF">
+  <div class="card">
+    <div class="q-header">
+      <span class="q-round">⚖️ 第二关：明辨是非</span>
+      <div class="q-status"><span class="q-timer" id="tfTimer">⏱8</span><span class="q-num" id="tfQNum">1/8</span></div>
+    </div>
+    <span class="q-type-tag tag-tf">判断题</span>
+    <div class="q-text" id="tfQuestion"></div>
+    <div class="tf-row">
+      <button class="btn btn-tf btn-true" onclick="answerTF(true)">✅ 对的</button>
+      <button class="btn btn-tf btn-false" onclick="answerTF(false)">❌ 错的</button>
+    </div>
+    <div class="feedback" id="tfFeedback"></div>
+    <div class="btn-row"><button class="btn btn-next" id="tfNextBtn" style="display:none" onclick="nextTF()">下一题 ▶</button></div>
+  </div>
+</div>
+
+<!-- FILL BLANK -->
+<div class="screen" id="screenFB">
+  <div class="card">
+    <div class="q-header">
+      <span class="q-round">📝 第三关：记忆达人</span>
+      <span class="q-num" id="fbQNum">1/8</span>
+    </div>
+    <span class="q-type-tag tag-fb">填空题</span>
+    <div class="q-text" id="fbQuestion"></div>
+    <div class="blank-reveal" id="fbReveal"></div>
+    <div class="btn-row" style="flex-wrap:wrap">
+      <button class="btn btn-reveal" id="fbRevealBtn" onclick="revealFB()">🔍 查看答案</button>
+      <div id="fbConfirm" style="display:none;gap:12px;margin-top:8px">
+        <button class="btn" style="background:#27ae60;color:#fff" onclick="fbScore(true)">✅ +10分</button>
+        <button class="btn" style="background:#e74c3c;color:#fff" onclick="fbScore(false)">❌ 没答对</button>
+      </div>
+      <button class="btn btn-next" id="fbNextBtn" style="display:none" onclick="nextFB()">下一题 ▶</button>
+    </div>
+  </div>
+</div>
+
+<!-- ROUND COMPLETE -->
+<div class="screen" id="screenRound">
+  <div class="card round-complete">
+    <h2>🎉 闯关完成！</h2>
+    <div class="round-score">
+      <div class="rs-card"><div class="rn">总分</div><div class="rs" id="finalScore">0</div></div>
+    </div>
+    <div style="font-size:22px;font-weight:900;margin:16px 0" id="winner"></div>
+    <button class="btn btn-start" style="font-size:18px" onclick="location.reload()">🔄 再来一局</button>
+  </div>
+</div>
+
+<div class="confetti" id="confetti"></div>
+
+<script>
+// ====== AUDIO ======
+const AC = window.AudioContext || window.webkitAudioContext;
+function beep(f, d, t) {
+  try { const a = new AC(); const o = a.createOscillator(); const g = a.createGain(); o.connect(g); g.connect(a.destination); o.type = t || 'square'; o.frequency.value = f; g.gain.value = 0.15; o.start(); o.stop(a.currentTime + d); } catch(e) {}
+}
+function sfx(s) { if (s === 'correct') { beep(523, 0.1); setTimeout(() => beep(659, 0.1), 100); setTimeout(() => beep(784, 0.15), 200); } else if (s === 'wrong') { beep(200, 0.3, 'sawtooth'); } else { beep(440, 0.05); } }
+
+// ====== STATE ======
+let gs = { score: 0, mcIdx: 0, tfIdx: 0, fbIdx: 0, mcAns: false, tfAns: false, fbRev: false, timer: null, time: 0 };
+
+// ====== QUESTIONS (照搬提纲) ======
+const mcQuestions = [
+  { q: '鱼、鸟、昆虫的共同特征是什么？', opts: ['都有翅膀', '身体都有一节一节的脊椎', '都生活在水中', '都是卵生'], ans: 1 },
+  { q: '科学家根据什么将动物分为脊椎动物和无脊椎动物？', opts: ['是否有翅膀', '是否有腿', '身体内是否有脊柱', '是否吃草'], ans: 2 },
+  { q: '以下哪种是脊椎动物？', opts: ['蚂蚁', '蜗牛', '鱼', '蚯蚓'], ans: 2 },
+  { q: '脊柱在脊椎动物身体中起什么作用？', opts: ['消化食物', '支撑结构', '呼吸空气', '感知温度'], ans: 1 },
+  { q: '熊猫和狗是用什么方式繁殖后代的？', opts: ['卵生', '胎生', '分裂', '孢子'], ans: 1 },
+  { q: '母鸡孵蛋的过程叫什么？', opts: ['蜕皮', '羽化', '孵化', '冬眠'], ans: 2 },
+  { q: '蚕的生命是从什么开始的？', opts: ['幼虫', '蛹', '成虫', '卵'], ans: 3 },
+  { q: '蚕的幼虫身体分为哪三部分？', opts: ['头、尾、脚', '头、胸、腹', '头、背、腹', '触角、翅膀、足'], ans: 1 },
+  { q: '蚕生长到一定阶段换新皮，这个过程叫什么？', opts: ['孵化', '羽化', '蜕皮', '冬眠'], ans: 2 },
+  { q: '蚕的一生经历几个阶段？正确的顺序是？', opts: ['幼虫→卵→蛹→成虫', '卵→幼虫→蛹→成虫', '卵→蛹→幼虫→成虫', '蛹→幼虫→成虫→卵'], ans: 1 },
+];
+
+const tfQuestions = [
+  { q: '蚂蚁是有脊柱的脊椎动物。', ans: false, explain: '蚂蚁没有脊柱，是无脊椎动物。' },
+  { q: '老虎和狮子是肉食性动物，牙齿锋利适合撕咬。', ans: true },
+  { q: '鸡和鸭是胎生动物。', ans: false, explain: '鸡和鸭是卵生的。' },
+  { q: '刚出生的蚕宝宝是黑色或黑褐色的，叫蚁蚕。', ans: true },
+  { q: '蚕的腹部有3对足。', ans: false, explain: '蚕胸部有3对足，腹部有5对足。' },
+  { q: '蚕蛾是蚕的成虫，需要吃桑叶维持生命。', ans: false, explain: '蚕蛾不进食，交配后死去。' },
+  { q: '完全变态发育的动物需要经过蛹期。', ans: true },
+  { q: '人的生长发育最快的时期是老年期。', ans: false, explain: '青年和青少年时期身体生长发育最快。' },
+];
+
+const fbQuestions = [
+  { q: '动物学家根据身体是否含有<span style="border-bottom:3px solid #2d8a4e;padding:0 30px"></span>，将动物分为脊椎动物和无脊椎动物。', ans: ['脊柱'] },
+  { q: '兔子、熊猫的牙齿扁平，适合咀嚼植物，属于<span style="border-bottom:3px solid #2d8a4e;padding:0 30px"></span>动物。', ans: ['植食性', '食草'] },
+  { q: '蚕茧中的蚕以<span style="border-bottom:3px solid #2d8a4e;padding:0 30px"></span>的形态存在，呈纺锤形、黄褐色。', ans: ['蛹', '蚕蛹'] },
+  { q: '蚕的一生从蚕卵破壳开始，到蚕蛾死亡结束，约为<span style="border-bottom:3px solid #2d8a4e;padding:0 30px"></span>天。', ans: ['40~60', '40-60', '四五十天'] },
+  { q: '只经历卵、幼虫、成虫三个阶段，没有蛹期的发育叫<span style="border-bottom:3px solid #2d8a4e;padding:0 30px"></span>变态。', ans: ['不完全'] },
+  { q: '自然界中的动物都需要经历出生、生长发育、<span style="border-bottom:3px solid #2d8a4e;padding:0 30px"></span>和死亡四个阶段。', ans: ['繁殖'] },
+  { q: '冬天来临时，有些动物会<span style="border-bottom:3px solid #2d8a4e;padding:0 30px"></span>以适应环境变化。', ans: ['冬眠', '冬眠或迁徙', '冬眠/迁徙'] },
+  { q: '影响蚕生命和变化的因素有食物、温度、<span style="border-bottom:3px solid #2d8a4e;padding:0 30px"></span>和疾病等。', ans: ['湿度'] },
+];
+
+let quizLog = { mc: new Array(mcQuestions.length).fill(null), tf: new Array(tfQuestions.length).fill(null), fb: new Array(fbQuestions.length).fill(null) };
+
+// ====== TIMER ======
+function startTimer(sec, elId, cb) {
+  clearInterval(gs.timer); gs.time = sec;
+  const el = document.getElementById(elId); el.textContent = '⏱' + sec; el.classList.remove('warning');
+  gs.timer = setInterval(() => { gs.time--; el.textContent = '⏱' + gs.time; if (gs.time <= 5) el.classList.add('warning'); if (gs.time <= 0) { clearInterval(gs.timer); cb(); } }, 1000);
+}
+function stopTimer() { clearInterval(gs.timer); }
+function updateScores() { document.getElementById('totalScore').textContent = gs.score; }
+
+function switchScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ====== START ======
+function startGame() { sfx('click'); gs.mcIdx = 0; gs.tfIdx = 0; gs.fbIdx = 0; loadMC(); }
+
+// ====== MC ======
+function loadMC() {
+  if (gs.mcIdx >= mcQuestions.length) { gs.tfIdx = 0; switchScreen('screenTF'); loadTF(); return; }
+  const q = mcQuestions[gs.mcIdx];
+  document.getElementById('mcQNum').textContent = (gs.mcIdx + 1) + '/10';
+  document.getElementById('mcQuestion').textContent = q.q;
+  document.getElementById('mcFeedback').textContent = ''; document.getElementById('mcFeedback').className = 'feedback';
+  document.getElementById('mcNextBtn').style.display = 'none'; gs.mcAns = false;
+  const optDiv = document.getElementById('mcOptions'); optDiv.innerHTML = '';
+  const labels = ['A', 'B', 'C', 'D'];
+  q.opts.forEach((o, i) => { const b = document.createElement('button'); b.className = 'opt-btn'; b.innerHTML = '<b>' + labels[i] + '</b> ' + o; b.onclick = () => ansMC(i); optDiv.appendChild(b); });
+  switchScreen('screenMC');
+  startTimer(15, 'mcTimer', () => { if (!gs.mcAns) timeUpMC(); });
+}
+function timeUpMC() {
+  gs.mcAns = true; const q = mcQuestions[gs.mcIdx];
+  document.querySelectorAll('#mcOptions .opt-btn').forEach((b, i) => { b.style.pointerEvents = 'none'; if (i === q.ans) b.classList.add('correct'); });
+  document.getElementById('mcFeedback').textContent = '⏰ 时间到！正确答案是 ' + ['A','B','C','D'][q.ans]; document.getElementById('mcFeedback').className = 'feedback wrong';
+  sfx('wrong'); document.getElementById('mcNextBtn').style.display = 'inline-block'; quizLog.mc[gs.mcIdx]='timeout';
+}
+function ansMC(i) {
+  if (gs.mcAns) return; gs.mcAns = true; stopTimer(); const q = mcQuestions[gs.mcIdx]; const ok = i === q.ans;
+  document.querySelectorAll('#mcOptions .opt-btn').forEach((b, j) => { b.style.pointerEvents = 'none'; if (j === q.ans) b.classList.add('correct'); if (j === i && !ok) b.classList.add('wrong'); });
+  const fb = document.getElementById('mcFeedback');
+  if (ok) { fb.textContent = '✅ 回答正确！+10分'; fb.className = 'feedback correct'; sfx('correct'); gs.score += 10; quizLog.mc[gs.mcIdx]='ok'; }
+  else { fb.textContent = '❌ 回答错误！正确答案是 ' + ['A','B','C','D'][q.ans]; fb.className = 'feedback wrong'; sfx('wrong'); quizLog.mc[gs.mcIdx]='wrong'; }
+  updateScores(); document.getElementById('mcNextBtn').style.display = 'inline-block';
+}
+function nextMC() { sfx('click'); stopTimer(); gs.mcIdx++; loadMC(); }
+
+// ====== TF ======
+function loadTF() {
+  if (gs.tfIdx >= tfQuestions.length) { gs.fbIdx = 0; switchScreen('screenFB'); loadFB(); return; }
+  const q = tfQuestions[gs.tfIdx];
+  document.getElementById('tfQNum').textContent = (gs.tfIdx + 1) + '/8';
+  document.getElementById('tfQuestion').textContent = q.q;
+  document.getElementById('tfFeedback').textContent = ''; document.getElementById('tfFeedback').className = 'feedback';
+  document.getElementById('tfNextBtn').style.display = 'none'; gs.tfAns = false;
+  document.querySelectorAll('.btn-tf').forEach(b => { b.classList.remove('correct', 'wrong'); b.style.pointerEvents = 'auto'; });
+  switchScreen('screenTF');
+  startTimer(8, 'tfTimer', () => { if (!gs.tfAns) timeUpTF(); });
+}
+function timeUpTF() {
+  gs.tfAns = true; const q = tfQuestions[gs.tfIdx];
+  document.querySelectorAll('.btn-tf').forEach(b => { b.style.pointerEvents = 'none'; });
+  if (q.ans) document.querySelector('.btn-true').classList.add('correct');
+  else document.querySelector('.btn-false').classList.add('correct');
+  document.getElementById('tfFeedback').textContent = '⏰ 时间到！' + (q.explain || ''); document.getElementById('tfFeedback').className = 'feedback wrong';
+  sfx('wrong'); document.getElementById('tfNextBtn').style.display = 'inline-block'; quizLog.tf[gs.tfIdx]='timeout';
+}
+function answerTF(u) {
+  if (gs.tfAns) return; gs.tfAns = true; stopTimer(); const q = tfQuestions[gs.tfIdx]; const ok = u === q.ans;
+  document.querySelectorAll('.btn-tf').forEach(b => { b.style.pointerEvents = 'none'; });
+  if (q.ans) { document.querySelector('.btn-true').classList.add('correct'); if (!u) document.querySelector('.btn-false').classList.add('wrong'); }
+  else { document.querySelector('.btn-false').classList.add('correct'); if (u) document.querySelector('.btn-true').classList.add('wrong'); }
+  const fb = document.getElementById('tfFeedback');
+  if (ok) { fb.textContent = '✅ 判断正确！+10分'; fb.className = 'feedback correct'; sfx('correct'); gs.score += 10; quizLog.tf[gs.tfIdx]='ok'; }
+  else { fb.textContent = '❌ 判断错误！' + (q.explain || ''); fb.className = 'feedback wrong'; sfx('wrong'); quizLog.tf[gs.tfIdx]='wrong'; }
+  updateScores(); document.getElementById('tfNextBtn').style.display = 'inline-block';
+}
+function nextTF() { sfx('click'); stopTimer(); gs.tfIdx++; loadTF(); }
+
+// ====== FB ======
+function loadFB() {
+  if (gs.fbIdx >= fbQuestions.length) { completeRound(); return; }
+  const q = fbQuestions[gs.fbIdx];
+  document.getElementById('fbQNum').textContent = (gs.fbIdx + 1) + '/8';
+  document.getElementById('fbQuestion').innerHTML = q.q;
+  document.getElementById('fbReveal').style.display = 'none';
+  document.getElementById('fbRevealBtn').style.display = 'inline-block';
+  document.getElementById('fbConfirm').style.display = 'none';
+  document.getElementById('fbNextBtn').style.display = 'none'; gs.fbRev = false;
+  switchScreen('screenFB');
+}
+function revealFB() {
+  if (gs.fbRev) return; gs.fbRev = true;
+  const q = fbQuestions[gs.fbIdx];
+  document.getElementById('fbReveal').innerHTML = '答案：<span class="ans">' + q.ans.join('、') + '</span>';
+  document.getElementById('fbReveal').style.display = 'block';
+  document.getElementById('fbRevealBtn').style.display = 'none';
+  document.getElementById('fbConfirm').style.display = 'flex';
+}
+function fbScore(ok) {
+  document.getElementById('fbConfirm').style.display = 'none';
+  if (ok) { sfx('correct'); gs.score += 10; quizLog.fb[gs.fbIdx]='ok'; }
+  else { sfx('wrong'); quizLog.fb[gs.fbIdx]='wrong'; }
+  updateScores(); document.getElementById('fbNextBtn').style.display = 'inline-block';
+}
+function nextFB() { sfx('click'); gs.fbIdx++; loadFB(); }
+
+// ====== COMPLETE ======
+function completeRound() {
+  stopTimer(); switchScreen('screenRound');
+  document.getElementById('finalScore').textContent = gs.score;
+  const w = document.getElementById('winner');
+  w.textContent = '🏆 你获得了 ' + gs.score + ' 分！';
+  w.style.color = '#1a5c2a';
+  launchConfetti();
+}
+function launchConfetti() {
+  const c = document.getElementById('confetti'); c.classList.add('active'); c.innerHTML = '';
+  const colors = ['#ff6b6b','#5b9bd5','#ffd700','#27ae60','#e74c3c','#3498db','#f39c12','#9b59b6'];
+  for (let i = 0; i < 80; i++) {
+    const p = document.createElement('div'); p.className = 'confetti-piece';
+    p.style.left = Math.random() * 100 + '%'; p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.animationDuration = (2 + Math.random() * 3) + 's'; p.style.animationDelay = Math.random() * 1.5 + 's';
+    p.style.width = (6 + Math.random() * 10) + 'px'; p.style.height = (6 + Math.random() * 10) + 'px';
+    c.appendChild(p);
+  }
+  setTimeout(() => { c.classList.remove('active'); }, 4000);
+}
+function toggleNav(){var p=document.getElementById('navPanel');var b=document.getElementById('navBackdrop');if(p.classList.contains('open')){p.classList.remove('open');b.classList.remove('open')}else{renderNav();p.classList.add('open');b.classList.add('open')}}
+function renderNav(){var h='';h+='<div class="nav-round">🔥 第一关 · 选择题</div><div class="nav-grid">';for(var i=0;i<mcQuestions.length;i++){var cls=i===gs.mcIdx&&document.getElementById('screenMC').classList.contains('active')?'current':'';if(quizLog.mc[i]==='ok')cls+=' ok';else if(quizLog.mc[i]==='wrong')cls+=' err';else if(quizLog.mc[i]==='timeout')cls+=' timeout';h+='<div class="nav-dot '+cls+'" onclick="jumpMC('+i+')">'+(i+1)+'</div>'}h+='</div><div class="nav-round">⚖️ 第二关 · 判断题</div><div class="nav-grid">';for(var i=0;i<tfQuestions.length;i++){var cls2=i===gs.tfIdx&&document.getElementById('screenTF').classList.contains('active')?'current':'';if(quizLog.tf[i]==='ok')cls2+=' ok';else if(quizLog.tf[i]==='wrong')cls2+=' err';else if(quizLog.tf[i]==='timeout')cls2+=' timeout';h+='<div class="nav-dot '+cls2+'" onclick="jumpTF('+i+')">'+(i+1)+'</div>'}h+='</div><div class="nav-round">📝 第三关 · 填空题</div><div class="nav-grid">';for(var i=0;i<fbQuestions.length;i++){var cls3=i===gs.fbIdx&&document.getElementById('screenFB').classList.contains('active')?'current':'';if(quizLog.fb[i]==='ok')cls3+=' ok';else if(quizLog.fb[i]==='wrong')cls3+=' err';h+='<div class="nav-dot '+cls3+'" onclick="jumpFB('+i+')">'+(i+1)+'</div>'}h+='</div>';document.getElementById('navContent').innerHTML=h}
+function jumpMC(idx){stopTimer();gs.mcIdx=idx;gs.mcAns=false;loadMC();toggleNav()}
+function jumpTF(idx){stopTimer();gs.tfIdx=idx;gs.tfAns=false;loadTF();toggleNav()}
+function jumpFB(idx){stopTimer();gs.fbIdx=idx;gs.fbRev=false;loadFB();toggleNav()}
+</script>
+</body>
+</html>

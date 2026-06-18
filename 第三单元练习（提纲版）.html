@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>只有一个地球 · 复习闯关（照提纲版）</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei','PingFang SC',sans-serif;background:linear-gradient(160deg,#0d1b3e 0%,#1a3a6b 50%,#0d1b3e 100%);min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden}
+.top-bar{width:100%;max-width:1000px;display:flex;justify-content:space-between;align-items:center;padding:16px 24px;color:#fff}
+.top-bar .title{font-size:22px;font-weight:900;text-shadow:1px 1px 3px rgba(0,0,0,0.3)}
+.scores{display:flex;gap:0}
+.score-total{background:rgba(255,255,255,0.15);border-radius:12px;padding:8px 18px;text-align:center;backdrop-filter:blur(4px)}
+.score-total .name{font-size:15px;opacity:0.85}
+.score-total .num{font-size:28px;font-weight:900}
+.screen{display:none;width:100%;max-width:900px;padding:0 20px 30px}
+.screen.active{display:block;animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.card{background:rgba(255,255,255,0.96);border-radius:18px;padding:30px;box-shadow:0 10px 40px rgba(0,0,0,0.25)}
+.card h2{font-size:26px;color:#1a3a6b;margin-bottom:16px;text-align:center}
+.q-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.q-round{font-size:15px;color:#666;font-weight:700}
+.q-status{display:flex;gap:14px;align-items:center}
+.q-timer{font-size:26px;font-weight:900;color:#e74c3c;min-width:55px;text-align:center}
+.q-timer.warning{animation:blink .5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.q-num{font-size:15px;color:#999}
+.q-text{font-size:20px;line-height:1.7;color:#333;margin:16px 0 20px;padding:14px 18px;background:#f0f5ff;border-radius:10px}
+.options{display:grid;gap:10px}
+.opt-btn{display:block;width:100%;text-align:left;padding:14px 18px;border:2px solid #cce5ff;border-radius:12px;background:#fff;font-size:17px;cursor:pointer;transition:all .2s}
+.opt-btn:hover{border-color:#1a3a6b;background:#f0f5ff;transform:translateX(4px)}
+.opt-btn.correct{border-color:#27ae60;background:#d4edda;color:#155724;font-weight:700}
+.opt-btn.wrong{border-color:#e74c3c;background:#fdeaea;color:#721c24}
+.opt-btn b{color:#1a3a6b;margin-right:8px}
+.feedback{margin-top:16px;padding:12px 18px;border-radius:10px;font-size:17px;font-weight:700;text-align:center;display:none}
+.feedback.correct{display:block;background:#d4edda;color:#155724}
+.feedback.wrong{display:block;background:#fdeaea;color:#721c24}
+.feedback.info{display:block;background:#fff3cd;color:#856404}
+.btn-row{display:flex;gap:12px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.btn{padding:12px 28px;border-radius:25px;border:none;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-next{background:#1a3a6b;color:#fff}
+.btn-next:hover{background:#0d1b3e}
+.btn-reveal{background:#ffc107;color:#333}
+.btn-reveal:hover{background:#e0a800}
+.btn-tf{width:200px;padding:18px;font-size:22px;border-radius:14px}
+.btn-true{background:#27ae60;color:#fff}
+.btn-true:hover{background:#1e8449}
+.btn-false{background:#e74c3c;color:#fff}
+.btn-false:hover{background:#c0392b}
+.tf-row{display:flex;gap:20px;justify-content:center}
+.start{text-align:center;padding:40px 0}
+.start h1{font-size:36px;color:#1a3a6b;margin-bottom:8px}
+.start .desc{font-size:16px;color:#666;margin-bottom:24px;line-height:1.6}
+.start .rules{text-align:left;display:inline-block;font-size:15px;color:#555;line-height:2;margin-bottom:24px}
+.btn-start{padding:16px 50px;font-size:22px;background:linear-gradient(135deg,#ffd700,#f0a500);color:#0d1b3e;border:none;border-radius:30px;font-weight:900;cursor:pointer;box-shadow:0 6px 20px rgba(240,165,0,0.4);transition:all .25s}
+.btn-start:hover{transform:scale(1.05);box-shadow:0 8px 28px rgba(240,165,0,0.5)}
+.round-complete{text-align:center;padding:30px}
+.round-complete h2{font-size:30px;color:#1a3a6b;margin-bottom:16px}
+.confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:200;display:none}
+.confetti.active{display:block}
+.confetti-piece{position:absolute;width:10px;height:10px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{0%{transform:translateY(-100px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+.q-type-tag{display:inline-block;font-size:12px;padding:3px 10px;border-radius:12px;font-weight:700;margin-bottom:8px}
+.tag-mc{background:#cce5ff;color:#004085}
+.tag-tf{background:#fff3cd;color:#856404}
+.tag-fb{background:#f8d7da;color:#721c24}
+.blank-reveal{margin-top:14px;padding:14px 18px;background:#e8eeff;border-radius:10px;font-size:18px;display:none}
+.blank-reveal .ans{color:#1a3a6b;font-weight:900;font-size:20px}
+.nav-panel{position:fixed;right:0;top:0;width:260px;height:100vh;background:rgba(255,255,255,0.96);z-index:200;transform:translateX(100%);transition:transform 0.3s;box-shadow:-4px 0 20px rgba(0,0,0,0.15);overflow-y:auto;padding:20px 14px 40px}
+.nav-panel.open{transform:translateX(0)}
+.nav-backdrop{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.25);z-index:199;display:none}
+.nav-backdrop.open{display:block}
+.nav-toggle{position:fixed;right:8px;top:50%;transform:translateY(-50%);z-index:201;width:34px;height:90px;border-radius:17px 0 0 17px;border:none;background:rgba(0,0,0,0.45);color:#fff;font-size:15px;cursor:pointer;writing-mode:vertical-lr;letter-spacing:3px;font-weight:700;transition:all 0.2s}
+.nav-toggle:hover{background:rgba(0,0,0,0.65);width:38px}
+.nav-close{float:right;background:none;border:none;font-size:22px;cursor:pointer;color:#999;margin:-4px -4px 0 0}
+.nav-title{font-size:16px;font-weight:900;color:#333;margin-bottom:14px}
+.nav-round{font-size:13px;font-weight:700;color:#666;margin:12px 0 6px}
+.nav-grid{display:flex;flex-wrap:wrap;gap:6px}
+.nav-dot{width:32px;height:32px;border-radius:7px;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;background:#fff;transition:all 0.15s}
+.nav-dot:hover{transform:scale(1.12)}
+.nav-dot.current{border-color:#333;box-shadow:0 0 0 3px rgba(0,0,0,0.12)}
+.nav-dot.ok{background:#d4edda;border-color:#27ae60;color:#155724}
+.nav-dot.err{background:#fdeaea;border-color:#e74c3c;color:#721c24}
+.nav-dot.timeout{background:#fff3cd;border-color:#f39c12;color:#856404}
+</style>
+</head>
+<body>
+<button class="nav-toggle" onclick="toggleNav()">📋 题目导航</button>
+<div class="nav-backdrop" id="navBackdrop" onclick="toggleNav()"></div>
+<div class="nav-panel" id="navPanel">
+  <button class="nav-close" onclick="toggleNav()">✕</button>
+  <div class="nav-title">📋 题目导航</div>
+  <div id="navContent"></div>
+</div>
+
+
+<div class="top-bar">
+  <div class="title">🌍 只有一个地球 · 复习闯关</div>
+  <div class="scores">
+    <div class="score-total"><div class="name">总分</div><div class="num" id="totalScore">0</div></div>
+  </div>
+</div>
+
+<!-- START -->
+<div class="screen active" id="screenStart">
+  <div class="card start">
+    <h1>🌍 只有一个地球 · 复习闯关</h1>
+    <div class="desc">教科版 · 三年级下册 · 第三单元 · 照提纲版</div>
+    <div class="rules">
+      🔥 <b>第一关：火眼金睛</b>（选择题 10题 × 10分）<br>
+      ⚖️ <b>第二关：明辨是非</b>（判断题 8题 × 10分）<br>
+      📝 <b>第三关：记忆达人</b>（填空题 8题 × 10分）<br>
+      🏆 <b>总分 260分</b>
+    </div>
+    <button class="btn-start" onclick="startGame()">🚀 开始闯关</button>
+  </div>
+</div>
+
+<!-- MULTIPLE CHOICE -->
+<div class="screen" id="screenMC">
+  <div class="card">
+    <div class="q-header">
+      <span class="q-round">🔥 第一关：火眼金睛</span>
+      <div class="q-status"><span class="q-timer" id="mcTimer">⏱15</span><span class="q-num" id="mcQNum">1/10</span></div>
+    </div>
+    <span class="q-type-tag tag-mc">选择题</span>
+    <div class="q-text" id="mcQuestion"></div>
+    <div class="options" id="mcOptions"></div>
+    <div class="feedback" id="mcFeedback"></div>
+    <div class="btn-row"><button class="btn btn-next" id="mcNextBtn" style="display:none" onclick="nextMC()">下一题 ▶</button></div>
+  </div>
+</div>
+
+<!-- TRUE/FALSE -->
+<div class="screen" id="screenTF">
+  <div class="card">
+    <div class="q-header">
+      <span class="q-round">⚖️ 第二关：明辨是非</span>
+      <div class="q-status"><span class="q-timer" id="tfTimer">⏱8</span><span class="q-num" id="tfQNum">1/8</span></div>
+    </div>
+    <span class="q-type-tag tag-tf">判断题</span>
+    <div class="q-text" id="tfQuestion"></div>
+    <div class="tf-row">
+      <button class="btn btn-tf btn-true" onclick="answerTF(true)">✅ 对的</button>
+      <button class="btn btn-tf btn-false" onclick="answerTF(false)">❌ 错的</button>
+    </div>
+    <div class="feedback" id="tfFeedback"></div>
+    <div class="btn-row"><button class="btn btn-next" id="tfNextBtn" style="display:none" onclick="nextTF()">下一题 ▶</button></div>
+  </div>
+</div>
+
+<!-- FILL BLANK -->
+<div class="screen" id="screenFB">
+  <div class="card">
+    <div class="q-header">
+      <span class="q-round">📝 第三关：记忆达人</span>
+      <span class="q-num" id="fbQNum">1/8</span>
+    </div>
+    <span class="q-type-tag tag-fb">填空题</span>
+    <div class="q-text" id="fbQuestion"></div>
+    <div class="blank-reveal" id="fbReveal"></div>
+    <div class="btn-row" style="flex-wrap:wrap">
+      <button class="btn btn-reveal" id="fbRevealBtn" onclick="revealFB()">🔍 查看答案</button>
+      <div id="fbConfirm" style="display:none;gap:12px;margin-top:8px"><button class="btn" style="background:#27ae60;color:#fff" onclick="fbScore(true)">✅ +10分</button><button class="btn" style="background:#e74c3c;color:#fff" onclick="fbScore(false)">❌ 没答对</button></div>
+      <button class="btn btn-next" id="fbNextBtn" style="display:none" onclick="nextFB()">下一题 ▶</button>
+    </div>
+  </div>
+</div>
+
+<!-- ROUND COMPLETE -->
+<div class="screen" id="screenRound">
+  <div class="card round-complete">
+    <h2>🎉 闯关完成！</h2>
+    <div style="font-size:48px;font-weight:900;color:#1a3a6b;margin:20px 0" id="finalScore">0</div>
+    <div style="font-size:18px;color:#666" id="winner"></div>
+    <button class="btn btn-start" style="font-size:18px;margin-top:16px" onclick="location.reload()">🔄 再来一局</button>
+  </div>
+</div>
+
+<div class="confetti" id="confetti"></div>
+
+<script>
+// ====== AUDIO ======
+const AC = window.AudioContext || window.webkitAudioContext;
+function beep(f,d,t){try{const a=new AC();const o=a.createOscillator();const g=a.createGain();o.connect(g);g.connect(a.destination);o.type=t||'square';o.frequency.value=f;g.gain.value=0.15;o.start();o.stop(a.currentTime+d)}catch(e){}}
+function sfx(s){if(s==='correct'){beep(523,0.1);setTimeout(()=>beep(659,0.1),100);setTimeout(()=>beep(784,0.15),200)}else if(s==='wrong'){beep(200,0.3,'sawtooth')}else{beep(440,0.05)}}
+
+// ====== STATE ======
+let gs={score:0,mcIdx:0,tfIdx:0,fbIdx:0,mcAns:false,tfAns:false,fbRev:false,timer:null,time:0};
+
+// ====== QUESTIONS (照搬提纲 Unit 3) ======
+const mcQuestions=[
+  {q:'地球是哪个天体系统中的行星之一？',opts:['银河系','太阳系','月球系','北斗系'],ans:1},
+  {q:'地球上海洋面积约占地球表面的多少？',opts:['29%','50%','71%','90%'],ans:2},
+  {q:'课堂上为了比较海陆面积大小，可采用什么方法？',opts:['测量法','数格法','称重法','目测法'],ans:1},
+  {q:'月球表面温度最高可达多少？',opts:['100℃','120℃','200℃','60℃'],ans:1},
+  {q:'太阳是一颗什么样的天体？',opts:['行星','卫星','恒星','彗星'],ans:2},
+  {q:'太阳的表面温度约为多少？',opts:['1000℃','3000℃','6000℃','10000℃'],ans:2},
+  {q:'影子的形成需要哪三个条件？',opts:['光源、物体、眼睛','光源、遮挡物、屏','太阳、地面、人','光、水、镜子'],ans:1},
+  {q:'一天中，中午时太阳在什么方向（北半球）？',opts:['正东','正西','正南偏上','正北'],ans:2},
+  {q:'太阳系中最大的是哪颗行星？',opts:['地球','土星','木星','海王星'],ans:2},
+  {q:'太阳系中唯一已知有生命的行星是哪颗？',opts:['火星','木星','金星','地球'],ans:3},
+];
+
+const tfQuestions=[
+  {q:'地球的外部被大气层包围。',ans:true},
+  {q:'地球上可利用的淡水资源非常丰富。',ans:false,explain:'咸水资源很多，淡水资源很少。'},
+  {q:'月球上有液态水和大面积的海洋。',ans:false,explain:'月球上没有液态水。'},
+  {q:'月球的自转周期与绕地球公转周期相等，都是约27天。',ans:true},
+  {q:'月亮自身能够发光，所以是光源。',ans:false,explain:'月亮反射太阳光，不是光源。'},
+  {q:'早晨和傍晚的影子比中午的影子长。',ans:true},
+  {q:'八大行星按从大到小排序，地球比火星大。',ans:true},
+  {q:'日晷是用来测量温度的仪器。',ans:false,explain:'日晷是用来计时的。'},
+];
+
+const fbQuestions=[
+  {q:'<span style="border-bottom:3px solid #1a3a6b;padding:0 30px"></span>月<span style="border-bottom:3px solid #1a3a6b;padding:0 20px"></span>日是世界地球日。',ans:['4','22']},
+  {q:'地球上海洋和陆地比例约为<span style="border-bottom:3px solid #1a3a6b;padding:0 30px"></span>:<span style="border-bottom:3px solid #1a3a6b;padding:0 20px"></span>。',ans:['7','3']},
+  {q:'月球是地球唯一的<span style="border-bottom:3px solid #1a3a6b;padding:0 40px"></span>。',ans:['天然卫星']},
+  {q:'自身能发光且正在发光的物体叫<span style="border-bottom:3px solid #1a3a6b;padding:0 30px"></span>。',ans:['光源']},
+  {q:'一天中影子的长短变化规律是：<span style="border-bottom:3px solid #1a3a6b;padding:0 30px"></span> → 短 → <span style="border-bottom:3px solid #1a3a6b;padding:0 20px"></span>。',ans:['长','长']},
+  {q:'太阳的直径约为地球的<span style="border-bottom:3px solid #1a3a6b;padding:0 30px"></span>倍。',ans:['109']},
+  {q:'太阳系有<span style="border-bottom:3px solid #1a3a6b;padding:0 30px"></span>颗行星。',ans:['八','8']},
+  {q:'太阳是地球主要的<span style="border-bottom:3px solid #1a3a6b;padding:0 30px"></span>来源。',ans:['能量']},
+];
+
+let quizLog = { mc: new Array(mcQuestions.length).fill(null), tf: new Array(tfQuestions.length).fill(null), fb: new Array(fbQuestions.length).fill(null) };
+
+// ====== TIMER ======
+function startTimer(sec,elId,cb){clearInterval(gs.timer);gs.time=sec;const el=document.getElementById(elId);el.textContent='⏱'+sec;el.classList.remove('warning');gs.timer=setInterval(()=>{gs.time--;el.textContent='⏱'+gs.time;if(gs.time<=5)el.classList.add('warning');if(gs.time<=0){clearInterval(gs.timer);cb()}},1000)}
+function stopTimer(){clearInterval(gs.timer)}
+function updateScores(){document.getElementById('totalScore').textContent=gs.score}
+function switchScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+
+// ====== START ======
+function startGame(){sfx('click');gs.mcIdx=0;gs.tfIdx=0;gs.fbIdx=0;loadMC()}
+
+// ====== MC ======
+function loadMC(){if(gs.mcIdx>=mcQuestions.length){gs.tfIdx=0;switchScreen('screenTF');loadTF();return}const q=mcQuestions[gs.mcIdx];document.getElementById('mcQNum').textContent=(gs.mcIdx+1)+'/10';document.getElementById('mcQuestion').textContent=q.q;document.getElementById('mcFeedback').textContent='';document.getElementById('mcFeedback').className='feedback';document.getElementById('mcNextBtn').style.display='none';gs.mcAns=false;const d=document.getElementById('mcOptions');d.innerHTML='';const L=['A','B','C','D'];q.opts.forEach((o,i)=>{const b=document.createElement('button');b.className='opt-btn';b.innerHTML='<b>'+L[i]+'</b> '+o;b.onclick=()=>ansMC(i);d.appendChild(b)});switchScreen('screenMC');startTimer(15,'mcTimer',()=>{if(!gs.mcAns)timeUpMC()})}
+function timeUpMC(){gs.mcAns=true;const q=mcQuestions[gs.mcIdx];document.querySelectorAll('#mcOptions .opt-btn').forEach((b,i)=>{b.style.pointerEvents='none';if(i===q.ans)b.classList.add('correct')});document.getElementById('mcFeedback').textContent='⏰ 时间到！正确答案是 '+['A','B','C','D'][q.ans];document.getElementById('mcFeedback').className='feedback wrong';sfx('wrong');quizLog.mc[gs.mcIdx]='timeout';document.getElementById('mcNextBtn').style.display='inline-block'}
+function ansMC(i){if(gs.mcAns)return;gs.mcAns=true;stopTimer();const q=mcQuestions[gs.mcIdx];const ok=i===q.ans;document.querySelectorAll('#mcOptions .opt-btn').forEach((b,j)=>{b.style.pointerEvents='none';if(j===q.ans)b.classList.add('correct');if(j===i&&!ok)b.classList.add('wrong')});const fb=document.getElementById('mcFeedback');if(ok){fb.textContent='✅ 回答正确！+10分';fb.className='feedback correct';sfx('correct');gs.score+=10;quizLog.mc[gs.mcIdx]='ok'}else{fb.textContent='❌ 回答错误！正确答案是 '+['A','B','C','D'][q.ans];fb.className='feedback wrong';sfx('wrong');quizLog.mc[gs.mcIdx]='wrong'}updateScores();document.getElementById('mcNextBtn').style.display='inline-block'}
+function nextMC(){sfx('click');stopTimer();gs.mcIdx++;loadMC()}
+
+// ====== TF ======
+function loadTF(){if(gs.tfIdx>=tfQuestions.length){gs.fbIdx=0;switchScreen('screenFB');loadFB();return}const q=tfQuestions[gs.tfIdx];document.getElementById('tfQNum').textContent=(gs.tfIdx+1)+'/8';document.getElementById('tfQuestion').textContent=q.q;document.getElementById('tfFeedback').textContent='';document.getElementById('tfFeedback').className='feedback';document.getElementById('tfNextBtn').style.display='none';gs.tfAns=false;document.querySelectorAll('.btn-tf').forEach(b=>{b.classList.remove('correct','wrong');b.style.pointerEvents='auto'});switchScreen('screenTF');startTimer(8,'tfTimer',()=>{if(!gs.tfAns)timeUpTF()})}
+function timeUpTF(){gs.tfAns=true;const q=tfQuestions[gs.tfIdx];document.querySelectorAll('.btn-tf').forEach(b=>{b.style.pointerEvents='none'});if(q.ans)document.querySelector('.btn-true').classList.add('correct');else document.querySelector('.btn-false').classList.add('correct');document.getElementById('tfFeedback').textContent='⏰ 时间到！'+(q.explain||'');document.getElementById('tfFeedback').className='feedback wrong';sfx('wrong');quizLog.tf[gs.tfIdx]='timeout';document.getElementById('tfNextBtn').style.display='inline-block'}
+function answerTF(u){if(gs.tfAns)return;gs.tfAns=true;stopTimer();const q=tfQuestions[gs.tfIdx];const ok=u===q.ans;document.querySelectorAll('.btn-tf').forEach(b=>{b.style.pointerEvents='none'});if(q.ans){document.querySelector('.btn-true').classList.add('correct');if(!u)document.querySelector('.btn-false').classList.add('wrong')}else{document.querySelector('.btn-false').classList.add('correct');if(u)document.querySelector('.btn-true').classList.add('wrong')}const fb=document.getElementById('tfFeedback');if(ok){fb.textContent='✅ 判断正确！+10分';fb.className='feedback correct';sfx('correct');gs.score+=10;quizLog.tf[gs.tfIdx]='ok'}else{fb.textContent='❌ 判断错误！'+(q.explain||'');fb.className='feedback wrong';sfx('wrong');quizLog.tf[gs.tfIdx]='wrong'}updateScores();document.getElementById('tfNextBtn').style.display='inline-block'}
+function nextTF(){sfx('click');stopTimer();gs.tfIdx++;loadTF()}
+
+// ====== FB ======
+function loadFB(){if(gs.fbIdx>=fbQuestions.length){completeRound();return}const q=fbQuestions[gs.fbIdx];document.getElementById('fbQNum').textContent=(gs.fbIdx+1)+'/8';document.getElementById('fbQuestion').innerHTML=q.q;document.getElementById('fbReveal').style.display='none';document.getElementById('fbRevealBtn').style.display='inline-block';document.getElementById('fbConfirm').style.display='none';document.getElementById('fbNextBtn').style.display='none';gs.fbRev=false;switchScreen('screenFB')}
+function revealFB(){if(gs.fbRev)return;gs.fbRev=true;const q=fbQuestions[gs.fbIdx];document.getElementById('fbReveal').innerHTML='答案：<span class="ans">'+q.ans.join('、')+'</span>';document.getElementById('fbReveal').style.display='block';document.getElementById('fbRevealBtn').style.display='none';document.getElementById('fbConfirm').style.display='flex'}
+function fbScore(ok){document.getElementById('fbConfirm').style.display='none';if(ok){sfx('correct');gs.score+=10;quizLog.fb[gs.fbIdx]='ok'}else{sfx('wrong');quizLog.fb[gs.fbIdx]='wrong'}updateScores();document.getElementById('fbNextBtn').style.display='inline-block'}
+function nextFB(){sfx('click');gs.fbIdx++;loadFB()}
+
+// ====== COMPLETE ======
+function completeRound(){stopTimer();switchScreen('screenRound');document.getElementById('finalScore').textContent=gs.score+' / 260';const w=document.getElementById('winner');const pct=gs.score/260;if(pct>=0.9)w.textContent='🏆 太棒了！接近满分！';else if(pct>=0.7)w.textContent='👍 表现不错！继续加油！';else w.textContent='💪 继续努力，你可以更好！';w.style.color='#1a3a6b';launchConfetti()}
+function launchConfetti(){const c=document.getElementById('confetti');c.classList.add('active');c.innerHTML='';const cols=['#ff6b6b','#5b9bd5','#ffd700','#27ae60','#e74c3c','#3498db','#f39c12','#9b59b6'];for(let i=0;i<80;i++){const p=document.createElement('div');p.className='confetti-piece';p.style.left=Math.random()*100+'%';p.style.background=cols[Math.floor(Math.random()*cols.length)];p.style.animationDuration=(2+Math.random()*3)+'s';p.style.animationDelay=Math.random()*1.5+'s';p.style.width=(6+Math.random()*10)+'px';p.style.height=(6+Math.random()*10)+'px';c.appendChild(p)}setTimeout(()=>{c.classList.remove('active')},4000)}
+
+// ====== NAVIGATION ======
+function toggleNav(){var p=document.getElementById('navPanel');var b=document.getElementById('navBackdrop');if(p.classList.contains('open')){p.classList.remove('open');b.classList.remove('open')}else{renderNav();p.classList.add('open');b.classList.add('open')}}
+function renderNav(){var h='';h+='<div class="nav-round">🔥 第一关 · 选择题</div><div class="nav-grid">';for(var i=0;i<mcQuestions.length;i++){var cls=i===gs.mcIdx&&document.getElementById('screenMC').classList.contains('active')?'current':'';if(quizLog.mc[i]==='ok')cls+=' ok';else if(quizLog.mc[i]==='wrong')cls+=' err';else if(quizLog.mc[i]==='timeout')cls+=' timeout';h+='<div class="nav-dot '+cls+'" onclick="jumpMC('+i+')">'+(i+1)+'</div>'}h+='</div><div class="nav-round">⚖️ 第二关 · 判断题</div><div class="nav-grid">';for(var i=0;i<tfQuestions.length;i++){var cls2=i===gs.tfIdx&&document.getElementById('screenTF').classList.contains('active')?'current':'';if(quizLog.tf[i]==='ok')cls2+=' ok';else if(quizLog.tf[i]==='wrong')cls2+=' err';else if(quizLog.tf[i]==='timeout')cls2+=' timeout';h+='<div class="nav-dot '+cls2+'" onclick="jumpTF('+i+')">'+(i+1)+'</div>'}h+='</div><div class="nav-round">📝 第三关 · 填空题</div><div class="nav-grid">';for(var i=0;i<fbQuestions.length;i++){var cls3=i===gs.fbIdx&&document.getElementById('screenFB').classList.contains('active')?'current':'';if(quizLog.fb[i]==='ok')cls3+=' ok';else if(quizLog.fb[i]==='wrong')cls3+=' err';h+='<div class="nav-dot '+cls3+'" onclick="jumpFB('+i+')">'+(i+1)+'</div>'}h+='</div>';document.getElementById('navContent').innerHTML=h}
+function jumpMC(idx){stopTimer();gs.mcIdx=idx;gs.mcAns=false;loadMC();toggleNav()}
+function jumpTF(idx){stopTimer();gs.tfIdx=idx;gs.tfAns=false;loadTF();toggleNav()}
+function jumpFB(idx){stopTimer();gs.fbIdx=idx;gs.fbRev=false;loadFB();toggleNav()}
+</script>
+</body>
+</html>

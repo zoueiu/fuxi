@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三年级科学 · 第一单元复习 — 方向大师挑战赛</title>
+<style>
+:root {
+  --red: #e74c3c; --red-light: #fadbd8;
+  --blue: #3498db; --blue-light: #d6eaf8;
+  --gold: #f39c12; --green: #27ae60;
+  --bg: #f0f4f8; --card: #ffffff;
+  --text: #2c3e50; --text-light: #5d6d7e;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+  background: linear-gradient(135deg, #0c3483 0%, #a2b6df 50%, #6b8cce 100%);
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  overflow: hidden; user-select: none;
+}
+#app { width: 100vw; height: 100vh; position: relative; display: flex; flex-direction: column; }
+
+.top-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 36px; background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(10px); z-index: 10;
+}
+.top-bar .title-main {
+  color: #fff; font-size: 24px; font-weight: 900;
+  letter-spacing: 2px; text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  display: flex; align-items: center; gap: 8px;
+}
+.round-dots { display: flex; gap: 6px; }
+.round-dot {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: rgba(255,255,255,0.25); transition: all 0.3s;
+}
+.round-dot.active { background: #ffd700; box-shadow: 0 0 10px #ffd700; transform: scale(1.3); }
+.round-dot.done { background: #2ecc71; }
+
+.total-score-box {
+  padding: 6px 18px; border-radius: 10px; color: #fff;
+  font-size: 18px; font-weight: 700; min-width: 100px; text-align: center;
+  background: linear-gradient(135deg, #f39c12, #e74c3c);
+  box-shadow: 0 0 12px rgba(243,156,18,0.4);
+}
+
+.main-content { flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px 36px; }
+
+.screen { display: none; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 960px; }
+.screen.active { display: flex; }
+
+/* WELCOME */
+.game-logo { font-size: 90px; margin-bottom: 12px; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+.welcome-title {
+  font-size: 48px; font-weight: 900; color: #fff; text-align: center;
+  text-shadow: 0 4px 24px rgba(0,0,0,0.5); margin-bottom: 8px; line-height: 1.3;
+}
+.welcome-sub { font-size: 20px; color: rgba(255,255,255,0.82); margin-bottom: 36px; text-align: center; }
+.welcome-info {
+  background: rgba(255,255,255,0.15); backdrop-filter: blur(8px); border-radius: 16px;
+  padding: 18px 28px; color: #fff; font-size: 16px; margin-bottom: 28px;
+  display: flex; gap: 32px; flex-wrap: wrap; justify-content: center;
+}
+.welcome-info span { display: flex; align-items: center; gap: 6px; }
+.btn-big {
+  font-size: 30px; font-weight: 700; padding: 18px 56px; border: none;
+  border-radius: 18px; cursor: pointer; color: #fff; letter-spacing: 2px;
+  transition: all 0.3s; box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+.btn-big:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+.btn-start {
+  background: linear-gradient(135deg, #f39c12, #e74c3c);
+  font-size: 34px; padding: 22px 72px;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%,100%{box-shadow:0 8px 32px rgba(231,76,60,0.5)}
+  50%{box-shadow:0 8px 56px rgba(231,76,60,0.8)}
+}
+
+/* QUESTION CARD */
+.question-card {
+  background: var(--card); border-radius: 24px; padding: 32px 44px;
+  width: 100%; max-width: 880px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35); text-align: center; position: relative;
+}
+.q-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+}
+.q-round-name { font-size: 18px; color: var(--text-light); font-weight: 600; }
+.q-number { font-size: 16px; color: var(--text-light); }
+.q-timer {
+  font-size: 30px; font-weight: 900; color: #e74c3c; min-width: 60px; text-align: center;
+}
+.q-timer.warning { animation: timerBlink 0.5s infinite; }
+@keyframes timerBlink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.q-type-tag {
+  display: inline-block; padding: 3px 14px; border-radius: 16px;
+  font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 14px;
+}
+.tag-mc { background: #e74c3c; }
+.tag-tf { background: #f39c12; }
+.tag-fb { background: #27ae60; }
+.tag-game { background: #8e44ad; }
+
+.q-text {
+  font-size: 28px; font-weight: 700; color: var(--text);
+  line-height: 1.6; margin-bottom: 24px; min-height: 60px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 680px; margin: 0 auto; }
+.option-btn {
+  font-size: 24px; font-weight: 600; padding: 14px 20px;
+  border: 3px solid #e0e6ed; border-radius: 14px; background: #fafbfc;
+  cursor: pointer; transition: all 0.2s; color: var(--text); text-align: center;
+  min-height: 56px; display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.option-btn:hover { border-color: #6b8cce; background: #eef1ff; transform: scale(1.02); }
+.option-btn.correct { border-color: #27ae60; background: #d5f5e3; color: #1e8449; animation: pop 0.5s; }
+.option-btn.wrong { border-color: #e74c3c; background: #fadbd8; color: #c0392b; animation: shake 0.5s; }
+@keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.04)} 100%{transform:scale(1)} }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+
+.tf-grid { display: flex; gap: 28px; justify-content: center; }
+.tf-btn {
+  font-size: 80px; width: 160px; height: 160px; border-radius: 22px;
+  border: 4px solid #e0e6ed; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; font-weight: 900;
+}
+.tf-btn.true-btn { color: #27ae60; background: #f0faf4; }
+.tf-btn.true-btn:hover { border-color: #27ae60; transform: scale(1.05); background: #d5f5e3; }
+.tf-btn.false-btn { color: #e74c3c; background: #fef5f5; }
+.tf-btn.false-btn:hover { border-color: #e74c3c; transform: scale(1.05); background: #fadbd8; }
+.tf-btn.correct { border-color: #27ae60; background: #27ae60; color: #fff; animation: pop 0.5s; }
+.tf-btn.wrong { border-color: #e74c3c; background: #e74c3c; color: #fff; animation: shake 0.5s; }
+
+.feedback { margin-top: 18px; font-size: 20px; font-weight: 700; min-height: 30px; transition: all 0.3s; }
+.feedback.correct { color: #27ae60; }
+.feedback.wrong { color: #e74c3c; }
+
+.blank-reveal { margin-top: 12px; font-size: 26px; color: var(--text-light); min-height: 40px; }
+.blank-reveal .answer-text { color: #e74c3c; font-weight: 900; font-size: 30px; }
+
+.nav-buttons { display: flex; gap: 12px; margin-top: 18px; justify-content: center; flex-wrap: wrap; }
+.btn-nav {
+  font-size: 20px; padding: 10px 32px; border: none; border-radius: 12px;
+  cursor: pointer; font-weight: 700; color: #fff; transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.btn-nav:hover { transform: translateY(-2px); }
+.btn-next { background: linear-gradient(135deg, #6b8cce, #0c3483); }
+.btn-back { background: #95a5a6; }
+.btn-reveal { background: linear-gradient(135deg, #27ae60, #2ecc71); font-size: 22px; padding: 12px 40px; }
+.btn-reveal:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* DIRECTION GRID GAME */
+.grid-container {
+  display: flex; gap: 32px; align-items: flex-start; justify-content: center;
+  flex-wrap: wrap; margin-top: 8px;
+}
+.direction-grid {
+  display: grid; grid-template-columns: repeat(8, 48px);
+  grid-template-rows: repeat(8, 48px); gap: 2px;
+  background: #cbd5e0; border-radius: 8px; padding: 2px;
+}
+.grid-cell {
+  width: 48px; height: 48px; background: #fff;
+  border-radius: 4px; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 700; transition: all 0.3s;
+  cursor: default;
+}
+.grid-cell.player { background: #3498db; color: #fff; font-size: 24px; }
+.grid-cell.treasure { background: #f39c12; color: #fff; font-size: 24px; animation: float 1.5s ease-in-out infinite; }
+.grid-cell.path { background: #d5f5e3; }
+.grid-cell.fail { background: #fadbd8; }
+.grid-cell.wall { background: #2c3e50; }
+
+.grid-info {
+  background: #f8fafc; border-radius: 14px; padding: 20px;
+  border: 2px solid #e0e6ed; min-width: 220px; text-align: left;
+}
+.grid-info h3 { font-size: 18px; color: var(--text); margin-bottom: 8px; }
+.grid-info p { font-size: 15px; color: var(--text-light); margin: 4px 0; line-height: 1.6; }
+.grid-info .step-text { font-size: 20px; font-weight: 700; color: var(--text); margin: 10px 0; }
+.grid-info .step-num { color: #6b8cce; font-size: 14px; font-weight: 600; }
+
+.dir-btns { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.dir-btn {
+  font-size: 22px; width: 60px; height: 60px; border: 3px solid #6b8cce;
+  border-radius: 14px; background: #fff; cursor: pointer; font-weight: 700;
+  transition: all 0.2s; color: #6b8cce;
+}
+.dir-btn:hover { background: #6b8cce; color: #fff; transform: scale(1.08); }
+.dir-btn.wrong-dir { background: #e74c3c; color: #fff; border-color: #e74c3c; animation: shake 0.5s; }
+
+/* ROUND COMPLETE */
+.round-complete { text-align: center; }
+.round-complete h2 { font-size: 42px; color: #fff; margin-bottom: 12px; }
+.round-complete p { font-size: 22px; color: rgba(255,255,255,0.85); margin-bottom: 24px; }
+
+/* FINAL */
+.winner-emoji { font-size: 110px; animation: float 2s ease-in-out infinite; }
+.final-rank { display: flex; gap: 32px; justify-content: center; margin: 28px 0; }
+.rank-card {
+  background: rgba(255,255,255,0.18); backdrop-filter: blur(10px);
+  border-radius: 20px; padding: 28px 40px; text-align: center; color: #fff; min-width: 180px;
+}
+.rank-card .rank-pos { font-size: 42px; margin-bottom: 4px; }
+.rank-card .rank-team { font-size: 30px; font-weight: 900; margin-bottom: 4px; }
+.rank-card .rank-score { font-size: 56px; font-weight: 900; }
+.rank-card.winner {
+  background: rgba(255,215,0,0.28); box-shadow: 0 0 36px rgba(255,215,0,0.45); transform: scale(1.06);
+}
+
+/* NAV PANEL */
+.nav-panel{position:fixed;right:0;top:0;width:260px;height:100vh;background:rgba(255,255,255,0.96);z-index:200;transform:translateX(100%);transition:transform 0.3s;box-shadow:-4px 0 20px rgba(0,0,0,0.15);overflow-y:auto;padding:20px 14px 40px}
+.nav-panel.open{transform:translateX(0)}
+.nav-backdrop{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.25);z-index:199;display:none}
+.nav-backdrop.open{display:block}
+.nav-toggle{position:fixed;right:8px;top:50%;transform:translateY(-50%);z-index:201;width:34px;height:90px;border-radius:17px 0 0 17px;border:none;background:rgba(0,0,0,0.45);color:#fff;font-size:15px;cursor:pointer;writing-mode:vertical-lr;letter-spacing:3px;font-weight:700;transition:all 0.2s}
+.nav-toggle:hover{background:rgba(0,0,0,0.65);width:38px}
+.nav-close{float:right;background:none;border:none;font-size:22px;cursor:pointer;color:#999;margin:-4px -4px 0 0}
+.nav-title{font-size:16px;font-weight:900;color:#333;margin-bottom:14px}
+.nav-round{font-size:13px;font-weight:700;color:#666;margin:12px 0 6px}
+.nav-grid{display:flex;flex-wrap:wrap;gap:6px}
+.nav-dot{width:32px;height:32px;border-radius:7px;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;background:#fff;transition:all 0.15s}
+.nav-dot:hover{transform:scale(1.12)}
+.nav-dot.current{border-color:#333;box-shadow:0 0 0 3px rgba(0,0,0,0.12)}
+.nav-dot.ok{background:#d4edda;border-color:#27ae60;color:#155724}
+.nav-dot.err{background:#fdeaea;border-color:#e74c3c;color:#721c24}
+.nav-dot.timeout{background:#fff3cd;border-color:#f39c12;color:#856404}
+.nav-dot.nojump{opacity:0.5;cursor:default}
+.nav-dot.nojump:hover{transform:none}
+
+/* CONFETTI */
+.confetti-container { position: fixed; inset: 0; pointer-events: none; z-index: 200; }
+.confetti-piece {
+  position: absolute; width: 10px; height: 10px; border-radius: 3px;
+  animation: confetti-fall 3s ease-in-out forwards;
+}
+@keyframes confetti-fall {
+  0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+
+@media (max-width: 768px) {
+  .welcome-title { font-size: 30px; }
+  .q-text { font-size: 20px; }
+  .option-btn { font-size: 18px; padding: 10px 14px; }
+  .tf-btn { font-size: 56px; width: 120px; height: 120px; }
+  .top-bar { padding: 6px 14px; }
+  .top-bar .title-main { font-size: 16px; }
+  .total-score-box { font-size: 14px; padding: 4px 10px; }
+  .direction-grid { grid-template-columns: repeat(8, 36px); grid-template-rows: repeat(8, 36px); }
+  .grid-cell { width: 36px; height: 36px; font-size: 16px; }
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="top-bar">
+    <div class="title-main">🧭 三年级科学 · 方向大师挑战赛</div>
+    <div class="round-dots" id="roundDots">
+      <div class="round-dot active"></div><div class="round-dot"></div>
+      <div class="round-dot"></div><div class="round-dot"></div>
+    </div>
+    <div class="total-score-box" id="totalScore">总分: 0</div>
+  </div>
+
+  <div class="main-content">
+    <!-- WELCOME -->
+    <div class="screen active" id="screenWelcome">
+      <div class="game-logo">🧭</div>
+      <div class="welcome-title">方向大师挑战赛</div>
+      <div class="welcome-sub">三年级科学 · 第一单元《辨别方向》复习闯关</div>
+      <div class="welcome-info">
+        <span>🔥 火眼金睛 · 选择题 ×12</span>
+        <span>⚖️ 明辨是非 · 判断题 ×10</span>
+        <span>📝 记忆达人 · 填空题 ×8</span>
+        <span>🗺️ 方向寻宝 · 实操挑战 ×3</span>
+      </div>
+      <button class="btn-big btn-start" onclick="startGame()">🚀 开始闯关</button>
+    </div>
+
+    <!-- MULTIPLE CHOICE -->
+    <div class="screen" id="screenChoice">
+      <div class="question-card">
+        <div class="q-header">
+          <span class="q-round-name">🔥 第一关：火眼金睛</span>
+          <span class="q-timer" id="mcTimer">⏱ 15</span>
+          <span class="q-number" id="mcQNum">1 / 12</span>
+        </div>
+        <span class="q-type-tag tag-mc">选择题</span>
+        <div class="q-text" id="mcQuestion"></div>
+        <div class="options-grid" id="mcOptions"></div>
+        <div class="feedback" id="mcFeedback"></div>
+        <div class="nav-buttons">
+          <button class="btn-nav btn-next" id="mcNextBtn" style="display:none" onclick="nextMCQuestion()">下一题 ▶</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRUE/FALSE -->
+    <div class="screen" id="screenTF">
+      <div class="question-card">
+        <div class="q-header">
+          <span class="q-round-name">⚖️ 第二关：明辨是非</span>
+          <span class="q-timer" id="tfTimer">⏱ 8</span>
+          <span class="q-number" id="tfQNum">1 / 10</span>
+        </div>
+        <span class="q-type-tag tag-tf">判断题</span>
+        <div class="q-text" id="tfQuestion"></div>
+        <div class="tf-grid">
+          <button class="tf-btn true-btn" onclick="answerTF(true)">✓</button>
+          <button class="tf-btn false-btn" onclick="answerTF(false)">✗</button>
+        </div>
+        <div class="feedback" id="tfFeedback"></div>
+        <div class="nav-buttons">
+          <button class="btn-nav btn-next" id="tfNextBtn" style="display:none" onclick="nextTFQuestion()">下一题 ▶</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILL IN BLANK -->
+    <div class="screen" id="screenBlank">
+      <div class="question-card">
+        <div class="q-header">
+          <span class="q-round-name">📝 第三关：记忆达人</span>
+          <span class="q-number" id="fbQNum">1 / 8</span>
+        </div>
+        <span class="q-type-tag tag-fb">填空题</span>
+        <div class="q-text blanks" id="fbQuestion"></div>
+        <div class="blank-reveal" id="fbReveal"></div>
+        <div class="nav-buttons" style="flex-wrap:wrap">
+          <button class="btn-nav btn-reveal" id="fbRevealBtn" onclick="revealAnswer()">🔍 点击查看答案</button>
+          <div id="fbConfirmBtns" style="display:none;gap:12px;justify-content:center;margin-top:8px">
+            <button class="btn-nav" style="background:#27ae60" onclick="fbConfirm(true)">✅ 答对了 +10分</button>
+            <button class="btn-nav" style="background:#e74c3c" onclick="fbConfirm(false)">❌ 没答对</button>
+          </div>
+          <button class="btn-nav btn-next" id="fbNextBtn" style="display:none" onclick="nextFBQuestion()">下一题 ▶</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIRECTION GRID GAME -->
+    <div class="screen" id="screenDirGame">
+      <div class="question-card" style="max-width:920px">
+        <div class="q-header">
+          <span class="q-round-name">🗺️ 第四关：方向寻宝</span>
+          <span class="q-number" id="dgQNum">1 / 3</span>
+        </div>
+        <span class="q-type-tag tag-game">实操挑战</span>
+        <div class="q-text" id="dgQuestion" style="font-size:22px"></div>
+        <div class="grid-container">
+          <div class="direction-grid" id="dirGrid"></div>
+          <div class="grid-info">
+            <h3 id="dgTitle">寻宝任务</h3>
+            <p id="dgDesc"></p>
+            <div class="step-text" id="dgStep"></div>
+            <div class="dir-btns">
+              <button class="dir-btn" onclick="movePlayer('北')">↑<br>北</button>
+              <button class="dir-btn" onclick="movePlayer('南')">↓<br>南</button>
+              <button class="dir-btn" onclick="movePlayer('东')">→<br>东</button>
+              <button class="dir-btn" onclick="movePlayer('西')">←<br>西</button>
+            </div>
+          </div>
+        </div>
+        <div class="feedback" id="dgFeedback"></div>
+        <div class="nav-buttons">
+          <button class="btn-nav" style="background:#95a5a6" onclick="resetDirGame()">🔄 重来</button>
+          <button class="btn-nav btn-next" id="dgNextBtn" style="display:none" onclick="nextDirGame()">下一关 ▶</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROUND COMPLETE -->
+    <div class="screen" id="screenRoundComplete">
+      <div class="round-complete">
+        <h2 id="roundCompleteTitle"></h2>
+        <p id="roundCompleteScore"></p>
+        <button class="btn-big" onclick="nextRound()" style="background:linear-gradient(135deg,#6b8cce,#0c3483)" id="roundCompleteBtn">进入下一关 ▶</button>
+      </div>
+    </div>
+
+    <!-- FINAL -->
+    <div class="screen" id="screenFinal">
+      <div class="winner-emoji">🏆</div>
+      <h2 class="welcome-title" style="font-size:38px">方向大师诞生！</h2>
+      <div class="final-rank">
+        <div class="rank-card winner" id="finalRank">
+          <div class="rank-pos">🥇</div>
+          <div class="rank-team">总分</div>
+          <div class="rank-score" id="finalTotalScore">0</div>
+        </div>
+      </div>
+      <button class="btn-big" onclick="location.reload()" style="background:linear-gradient(135deg,#6b8cce,#0c3483);margin-top:20px">🔄 再来一局</button>
+    </div>
+  </div>
+</div>
+
+<button class="nav-toggle" onclick="toggleNav()">📋 题目导航</button>
+<div class="nav-backdrop" id="navBackdrop" onclick="toggleNav()"></div>
+<div class="nav-panel" id="navPanel">
+  <button class="nav-close" onclick="toggleNav()">✕</button>
+  <div class="nav-title">📋 题目导航</div>
+  <div id="navContent"></div>
+</div>
+
+<script>
+// ============= QUESTION DATA (UNIT 1: 辨别方向) =============
+
+const mcQuestions = [
+  { q: "太阳每天从哪个方向升起？", opts: ["东", "西", "南", "北"], ans: 0 },
+  { q: "面朝东方时，向右转是什么方向？", opts: ["东", "南", "西", "北"], ans: 1 },
+  { q: "上午阳光下物体的影子偏向哪个方向？", opts: ["东", "西", "南", "北"], ans: 1 },
+  { q: "在晴朗的夜晚，可以通过寻找什么来确定北方？", opts: ["北斗星", "北极星", "天狼星", "牛郎星"], ans: 1 },
+  { q: "磁铁指向南方的一端叫什么？", opts: ["N极", "S极", "正极", "负极"], ans: 1 },
+  { q: "磁极间的相互作用规律是什么？", opts: ["同性相吸、异性相吸", "同性相斥、异性相吸", "同性相斥、异性相斥", "同性相吸、异性相斥"], ans: 1 },
+  { q: "指南针由什么组成？", opts: ["磁针和表盘", "磁针和方位盘", "磁铁和指南盘", "磁石和方向盘"], ans: 1 },
+  { q: "在北半球，石头上苔藓更多的一面通常是什么方向？", opts: ["南方", "北方", "东方", "西方"], ans: 1 },
+  { q: "使用指南针时应该注意什么？", opts: ["靠近铁制品", "放在平稳处远离铁制品", "放在磁场附近", "用手摇晃"], ans: 1 },
+  { q: "太阳通常位于北半球的什么方向？", opts: ["东方", "西方", "南方", "北方"], ans: 2 },
+  { q: "使没有磁性的物体获得磁性的过程叫什么？", opts: ["磁力", "磁化", "磁吸", "磁感"], ans: 1 },
+  { q: "地球本身是一个巨大的什么？", opts: ["指南针", "磁铁", "金属球", "电导体"], ans: 1 },
+];
+
+const tfQuestions = [
+  { q: "太阳每天从东方升起，西方落下。", ans: true },
+  { q: "面朝西方时，向右转是南方。", ans: false, explain: "面朝西方时，向右转是北方" },
+  { q: "在北半球，树木枝叶更茂密的一面是北方。", ans: false, explain: "枝叶更茂密的是南方（向阳面）" },
+  { q: "同性磁极相互吸引。", ans: false, explain: "同性磁极相互排斥，异性磁极相互吸引" },
+  { q: "指南针是我国古代四大发明之一。", ans: true },
+  { q: "使没有磁性的物体获得磁性的过程叫磁化。", ans: true },
+  { q: "条形磁铁中间位置的磁性最强。", ans: false, explain: "条形磁铁两端的磁性最强" },
+  { q: "地磁的南极在地理的北极附近。", ans: true },
+  { q: "利用自然物辨别方向的方法非常精准。", ans: false, explain: "利用自然物辨向受天气、环境影响，不够准确" },
+  { q: "磁铁能吸引铁制品，具有指示方向的特性。", ans: true },
+];
+
+const fbQuestions = [
+  { q: "太阳每天从<span class='blank'>____</span>方升起，<span class='blank'>____</span>方落下。", ans: ["东", "西"] },
+  { q: "磁铁指向南方的一端为<span class='blank'>____</span>极，用符号<span class='blank'>____</span>表示。", ans: ["南", "S"] },
+  { q: "同性磁极相互<span class='blank'>____</span>，异性磁极相互<span class='blank'>____</span>。", ans: ["排斥", "吸引"] },
+  { q: "指南针由<span class='blank'>____</span>和<span class='blank'>____</span>组成。", ans: ["磁针", "方位盘"] },
+  { q: "使没有磁性的物体获得磁性的过程叫<span class='blank'>____</span>。", ans: ["磁化"] },
+  { q: "地磁的南极在地理的<span class='blank'>____</span>极附近。", ans: ["北"] },
+  { q: "通过观察竖直木棍影子的变化来辨别方向的方法叫<span class='blank'>____</span>。", ans: ["影钟法"] },
+  { q: "条形磁铁<span class='blank'>____</span>端位置的磁性强，<span class='blank'>____</span>位置的磁性弱。", ans: ["两", "中间"] },
+];
+
+// Direction Grid Game levels
+const dirGameLevels = [
+  {
+    title: "任务一：找到宝藏",
+    desc: "从起点(蓝色)出发，通过方向按钮来到达宝藏(⭐)。点击方向按钮来移动，看看你能否找到最短路线！",
+    size: 8,
+    start: [0, 0],
+    treasure: [3, 5],
+    walls: [[1,0],[1,1],[1,2],[1,3],[1,4],[1,5],[5,2],[5,3],[5,4],[5,5],[5,6],[4,0],[3,0],[2,0]],
+    maxMoves: 18,
+    points: 15,
+  },
+  {
+    title: "任务二：迷宫寻路",
+    desc: "这次路线更复杂！小心墙壁(黑色)，规划好你的每一步。",
+    size: 8,
+    start: [7, 0],
+    treasure: [2, 7],
+    walls: [[6,0],[6,1],[5,1],[4,1],[3,1],[3,2],[3,3],[3,4],[3,5],[3,6],[4,6],[5,6],[5,5],[5,4],[1,0],[1,1],[1,2],[1,3],[1,4],[1,5],[7,3],[7,4],[7,5]],
+    maxMoves: 25,
+    points: 20,
+  },
+  {
+    title: "任务三：终极挑战",
+    desc: "最高难度！用最少的步数到达宝藏，展示你的方向感！",
+    size: 8,
+    start: [0, 7],
+    treasure: [7, 0],
+    walls: [[1,7],[1,6],[1,5],[1,4],[2,4],[3,4],[4,4],[4,5],[4,6],[4,7],[6,7],[6,6],[6,5],[6,4],[6,3],[6,2],[6,1],[3,0],[3,1],[2,1],[1,1],[0,1],[5,3],[5,2]],
+    maxMoves: 30,
+    points: 25,
+  },
+];
+
+// ============= GAME STATE =============
+let gameState = {
+  score: 0,
+  currentRound: 0, // 0=mc, 1=tf, 2=fb, 3=dirgame
+  mcIndex: 0, tfIndex: 0, fbIndex: 0, dgIndex: 0,
+  mcAnswered: false, tfAnswered: false, fbRevealed: false, dgCompleted: false,
+  timerInterval: null, timeLeft: 0,
+  // Direction game
+  dgPlayerPos: [0,0], dgMoves: 0,
+};
+
+// ============= QUIZ LOG & NAVIGATION =============
+let quizLog = { mc: new Array(mcQuestions.length).fill(null), tf: new Array(tfQuestions.length).fill(null), fb: new Array(fbQuestions.length).fill(null), dg: new Array(dirGameLevels.length).fill(null) };
+
+function logQuiz(round, index, correct, type) {
+  const key = type === 'mc' ? 'mc' : type === 'tf' ? 'tf' : type === 'fb' ? 'fb' : 'dg';
+  quizLog[key][index] = correct ? 'ok' : 'wrong';
+  renderNav();
+}
+
+function toggleNav() {
+  const panel = document.getElementById('navPanel');
+  const backdrop = document.getElementById('navBackdrop');
+  if (panel.classList.contains('open')) {
+    panel.classList.remove('open');
+    backdrop.classList.remove('open');
+  } else {
+    renderNav();
+    panel.classList.add('open');
+    backdrop.classList.add('open');
+  }
+}
+
+function renderNav() {
+  const container = document.getElementById('navContent');
+  let h = '';
+
+  // Round 1: MC
+  h += '<div class="nav-round">🔥 第一关 · 选择题</div><div class="nav-grid">';
+  for (let i = 0; i < mcQuestions.length; i++) {
+    let cls = i === gameState.mcIndex && document.getElementById('screenChoice').classList.contains('active') ? 'current' : '';
+    if (quizLog.mc[i] === 'ok') cls += ' ok';
+    else if (quizLog.mc[i] === 'wrong') cls += ' err';
+    h += '<div class="nav-dot ' + cls + '" onclick="jumpMC(' + i + ')">' + (i + 1) + '</div>';
+  }
+  h += '</div>';
+
+  // Round 2: TF
+  h += '<div class="nav-round">⚖️ 第二关 · 判断题</div><div class="nav-grid">';
+  for (let i = 0; i < tfQuestions.length; i++) {
+    let cls = i === gameState.tfIndex && document.getElementById('screenTF').classList.contains('active') ? 'current' : '';
+    if (quizLog.tf[i] === 'ok') cls += ' ok';
+    else if (quizLog.tf[i] === 'wrong') cls += ' err';
+    h += '<div class="nav-dot ' + cls + '" onclick="jumpTF(' + i + ')">' + (i + 1) + '</div>';
+  }
+  h += '</div>';
+
+  // Round 3: FB
+  h += '<div class="nav-round">📝 第三关 · 填空题</div><div class="nav-grid">';
+  for (let i = 0; i < fbQuestions.length; i++) {
+    let cls = i === gameState.fbIndex && document.getElementById('screenBlank').classList.contains('active') ? 'current' : '';
+    if (quizLog.fb[i] === 'ok') cls += ' ok';
+    else if (quizLog.fb[i] === 'wrong') cls += ' err';
+    h += '<div class="nav-dot ' + cls + '" onclick="jumpFB(' + i + ')">' + (i + 1) + '</div>';
+  }
+  h += '</div>';
+
+  // Round 4: DirGame (no jump)
+  h += '<div class="nav-round">🗺️ 第四关 · 方向寻宝（不可跳转）</div><div class="nav-grid">';
+  for (let i = 0; i < dirGameLevels.length; i++) {
+    let cls = i === gameState.dgIndex && document.getElementById('screenDirGame').classList.contains('active') ? 'current' : '';
+    if (quizLog.dg[i] === 'ok') cls += ' ok';
+    else if (quizLog.dg[i] === 'wrong') cls += ' err';
+    h += '<div class="nav-dot nojump ' + cls + '">' + (i + 1) + '</div>';
+  }
+  h += '</div>';
+
+  container.innerHTML = h;
+}
+
+function jumpMC(idx) { stopTimer(); gameState.mcIndex = idx; gameState.mcAnswered = false; gameState.currentRound = 0; switchScreen('screenChoice'); loadMCQuestion(); toggleNav(); }
+function jumpTF(idx) { stopTimer(); gameState.tfIndex = idx; gameState.tfAnswered = false; gameState.currentRound = 1; switchScreen('screenTF'); loadTFQuestion(); toggleNav(); }
+function jumpFB(idx) { stopTimer(); gameState.fbIndex = idx; gameState.fbRevealed = false; gameState.currentRound = 2; switchScreen('screenBlank'); loadFBQuestion(); toggleNav(); }
+
+const ROUND_NAMES = ["第一关：火眼金睛", "第二关：明辨是非", "第三关：记忆达人", "第四关：方向寻宝"];
+const ROUND_SCREENS = ["screenChoice", "screenTF", "screenBlank", "screenDirGame"];
+const ROUND_EMOJIS = ["🔥", "⚖️", "📝", "🗺️"];
+
+function switchScreen(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  updateRoundDots();
+}
+
+function updateRoundDots() {
+  document.querySelectorAll('.round-dot').forEach((d, i) => {
+    d.classList.remove('active', 'done');
+    if (i < gameState.currentRound) d.classList.add('done');
+    if (i === gameState.currentRound) d.classList.add('active');
+  });
+}
+
+function updateScores() {
+  document.getElementById('totalScore').textContent = `总分: ${gameState.score}`;
+}
+
+// ============= SOUNDS =============
+function playSound(type) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination); gain.gain.value = 0.12;
+    if (type === 'correct') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523, ctx.currentTime);
+      osc.frequency.setValueAtTime(659, ctx.currentTime + 0.08);
+      osc.frequency.setValueAtTime(784, ctx.currentTime + 0.16);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.35);
+    } else if (type === 'wrong') {
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(200, ctx.currentTime);
+      osc.frequency.setValueAtTime(150, ctx.currentTime + 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.25);
+    } else if (type === 'click') {
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.08);
+    }
+  } catch(e) {}
+}
+
+function spawnConfetti() {
+  const container = document.createElement('div');
+  container.className = 'confetti-container';
+  document.body.appendChild(container);
+  const colors = ['#e74c3c','#3498db','#f39c12','#2ecc71','#9b59b6','#ffd700','#1abc9c'];
+  for (let i = 0; i < 70; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDelay = Math.random() * 1.5 + 's';
+    piece.style.animationDuration = (1.8 + Math.random() * 2.5) + 's';
+    container.appendChild(piece);
+  }
+  setTimeout(() => container.remove(), 4500);
+}
+
+// ============= TIMER =============
+function startTimer(seconds, displayId, onTimeout) {
+  clearInterval(gameState.timerInterval);
+  gameState.timeLeft = seconds;
+  const display = document.getElementById(displayId);
+  display.textContent = '⏱ ' + seconds;
+  display.classList.remove('warning');
+  gameState.timerInterval = setInterval(() => {
+    gameState.timeLeft--;
+    display.textContent = '⏱ ' + gameState.timeLeft;
+    if (gameState.timeLeft <= 3) display.classList.add('warning');
+    if (gameState.timeLeft <= 0) { clearInterval(gameState.timerInterval); onTimeout(); }
+  }, 1000);
+}
+
+function stopTimer() { clearInterval(gameState.timerInterval); }
+
+// ============= START GAME =============
+function startGame() {
+  playSound('click');
+  gameState.currentRound = 0; gameState.mcIndex = 0;
+  switchScreen('screenChoice'); updateScores(); loadMCQuestion();
+}
+
+// ============= ROUND 1: MULTIPLE CHOICE =============
+function loadMCQuestion() {
+  if (gameState.mcIndex >= mcQuestions.length) { gameState.currentRound = 1; gameState.tfIndex = 0; switchScreen('screenTF'); loadTFQuestion(); return; }
+  const q = mcQuestions[gameState.mcIndex];
+  document.getElementById('mcQNum').textContent = `${gameState.mcIndex + 1} / ${mcQuestions.length}`;
+  document.getElementById('mcQuestion').textContent = q.q;
+  document.getElementById('mcFeedback').textContent = '';
+  document.getElementById('mcFeedback').className = 'feedback';
+  document.getElementById('mcNextBtn').style.display = 'none';
+  gameState.mcAnswered = false;
+  const labels = ['A', 'B', 'C', 'D'];
+  const optsDiv = document.getElementById('mcOptions');
+  optsDiv.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span style="color:#6b8cce;font-weight:900">${labels[i]}</span> ${opt}`;
+    btn.onclick = () => answerMC(i);
+    optsDiv.appendChild(btn);
+  });
+  startTimer(15, 'mcTimer', () => { if (!gameState.mcAnswered) timeUpMC(); });
+}
+
+function timeUpMC() {
+  gameState.mcAnswered = true;
+  const q = mcQuestions[gameState.mcIndex];
+  document.querySelectorAll('#mcOptions .option-btn').forEach((btn, i) => {
+    btn.style.pointerEvents = 'none'; if (i === q.ans) btn.classList.add('correct');
+  });
+  document.getElementById('mcFeedback').textContent = '⏰ 时间到！正确答案是 ' + ['A','B','C','D'][q.ans];
+  document.getElementById('mcFeedback').className = 'feedback wrong';
+  playSound('wrong');
+  document.getElementById('mcNextBtn').style.display = 'inline-block';
+}
+
+function answerMC(index) {
+  if (gameState.mcAnswered) return;
+  gameState.mcAnswered = true; stopTimer();
+  const q = mcQuestions[gameState.mcIndex];
+  const correct = index === q.ans;
+  document.querySelectorAll('#mcOptions .option-btn').forEach((btn, i) => {
+    btn.style.pointerEvents = 'none';
+    if (i === q.ans) btn.classList.add('correct');
+    if (i === index && i !== q.ans) btn.classList.add('wrong');
+  });
+  const fb = document.getElementById('mcFeedback');
+  if (correct) {
+    fb.textContent = '✅ 回答正确！+10分'; fb.className = 'feedback correct';
+    playSound('correct');
+    gameState.score += 10;
+  } else {
+    fb.textContent = '❌ 回答错误！正确答案是 ' + ['A','B','C','D'][q.ans]; fb.className = 'feedback wrong';
+    playSound('wrong');
+  }
+  logQuiz(0, gameState.mcIndex, correct, 'mc');
+  updateScores();
+  document.getElementById('mcNextBtn').style.display = 'inline-block';
+}
+
+function nextMCQuestion() { playSound('click'); stopTimer(); gameState.mcIndex++; loadMCQuestion(); }
+
+// ============= ROUND 2: TRUE/FALSE =============
+function loadTFQuestion() {
+  if (gameState.tfIndex >= tfQuestions.length) { gameState.currentRound = 2; gameState.fbIndex = 0; switchScreen('screenBlank'); loadFBQuestion(); return; }
+  const q = tfQuestions[gameState.tfIndex];
+  document.getElementById('tfQNum').textContent = `${gameState.tfIndex + 1} / ${tfQuestions.length}`;
+  document.getElementById('tfQuestion').textContent = q.q;
+  document.getElementById('tfFeedback').textContent = ''; document.getElementById('tfFeedback').className = 'feedback';
+  document.getElementById('tfNextBtn').style.display = 'none';
+  gameState.tfAnswered = false;
+  document.querySelectorAll('.tf-btn').forEach(b => { b.classList.remove('correct', 'wrong'); b.style.pointerEvents = 'auto'; });
+  startTimer(8, 'tfTimer', () => { if (!gameState.tfAnswered) timeUpTF(); });
+}
+
+function timeUpTF() {
+  gameState.tfAnswered = true;
+  const q = tfQuestions[gameState.tfIndex];
+  const tb = document.querySelector('.tf-btn.true-btn'), fb = document.querySelector('.tf-btn.false-btn');
+  tb.style.pointerEvents = 'none'; fb.style.pointerEvents = 'none';
+  if (q.ans) tb.classList.add('correct'); else fb.classList.add('correct');
+  document.getElementById('tfFeedback').textContent = `⏰ 时间到！${q.explain ? '说明：' + q.explain : ''}`;
+  document.getElementById('tfFeedback').className = 'feedback wrong';
+  playSound('wrong');
+  document.getElementById('tfNextBtn').style.display = 'inline-block';
+}
+
+function answerTF(userAnswer) {
+  if (gameState.tfAnswered) return;
+  gameState.tfAnswered = true; stopTimer();
+  const q = tfQuestions[gameState.tfIndex];
+  const correct = userAnswer === q.ans;
+  const tb = document.querySelector('.tf-btn.true-btn'), fb = document.querySelector('.tf-btn.false-btn');
+  tb.style.pointerEvents = 'none'; fb.style.pointerEvents = 'none';
+  if (q.ans) { tb.classList.add('correct'); if (!userAnswer) fb.classList.add('wrong'); }
+  else { fb.classList.add('correct'); if (userAnswer) tb.classList.add('wrong'); }
+  const feed = document.getElementById('tfFeedback');
+  if (correct) {
+    feed.textContent = '✅ 判断正确！+10分'; feed.className = 'feedback correct';
+    playSound('correct');
+    gameState.score += 10;
+  } else {
+    feed.textContent = `❌ 判断错误！${q.explain || ''}`; feed.className = 'feedback wrong';
+    playSound('wrong');
+  }
+  logQuiz(1, gameState.tfIndex, correct, 'tf');
+  updateScores();
+  document.getElementById('tfNextBtn').style.display = 'inline-block';
+}
+
+function nextTFQuestion() { playSound('click'); stopTimer(); gameState.tfIndex++; loadTFQuestion(); }
+
+// ============= ROUND 3: FILL IN BLANK =============
+function loadFBQuestion() {
+  if (gameState.fbIndex >= fbQuestions.length) { gameState.currentRound = 3; gameState.dgIndex = 0; switchScreen('screenDirGame'); loadDirGame(); return; }
+  const q = fbQuestions[gameState.fbIndex];
+  document.getElementById('fbQNum').textContent = `${gameState.fbIndex + 1} / ${fbQuestions.length}`;
+  document.getElementById('fbQuestion').innerHTML = q.q;
+  document.getElementById('fbReveal').innerHTML = '';
+  document.getElementById('fbNextBtn').style.display = 'none';
+  document.getElementById('fbRevealBtn').style.display = 'inline-block';
+  document.getElementById('fbConfirmBtns').style.display = 'none';
+  gameState.fbRevealed = false;
+}
+
+function revealAnswer() {
+  if (gameState.fbRevealed) return;
+  gameState.fbRevealed = true;
+  const q = fbQuestions[gameState.fbIndex];
+  document.getElementById('fbReveal').innerHTML = `答案：<span class="answer-text">${q.ans.join('、')}</span>`;
+  document.getElementById('fbRevealBtn').style.display = 'none';
+  document.getElementById('fbConfirmBtns').style.display = 'flex';
+}
+
+function fbConfirm(correct) {
+  document.getElementById('fbConfirmBtns').style.display = 'none';
+  if (correct) {
+    playSound('correct');
+    gameState.score += 10;
+  } else { playSound('wrong'); }
+  logQuiz(2, gameState.fbIndex, correct, 'fb');
+  updateScores();
+  document.getElementById('fbNextBtn').style.display = 'inline-block';
+}
+
+function nextFBQuestion() { playSound('click'); stopTimer(); gameState.fbIndex++; loadFBQuestion(); }
+
+// ============= ROUND 4: DIRECTION GRID GAME =============
+function loadDirGame() {
+  if (gameState.dgIndex >= dirGameLevels.length) { completeRound(); return; }
+  const level = dirGameLevels[gameState.dgIndex];
+  document.getElementById('dgQNum').textContent = `${gameState.dgIndex + 1} / ${dirGameLevels.length}`;
+  document.getElementById('dgQuestion').textContent = level.title;
+  document.getElementById('dgTitle').textContent = level.title;
+  document.getElementById('dgDesc').textContent = level.desc;
+  document.getElementById('dgStep').textContent = `已走: 0 步 | 限步: ${level.maxMoves}`;
+  document.getElementById('dgFeedback').textContent = '';
+  document.getElementById('dgFeedback').className = 'feedback';
+  document.getElementById('dgNextBtn').style.display = 'none';
+  gameState.dgCompleted = false;
+  gameState.dgPlayerPos = [...level.start];
+  gameState.dgMoves = 0;
+
+  // Build grid
+  const grid = document.getElementById('dirGrid');
+  grid.innerHTML = '';
+  for (let row = 0; row < level.size; row++) {
+    for (let col = 0; col < level.size; col++) {
+      const cell = document.createElement('div');
+      cell.className = 'grid-cell';
+      cell.id = `cell${row}_${col}`;
+      if (row === level.treasure[0] && col === level.treasure[1]) cell.classList.add('treasure');
+      if (level.walls.some(w => w[0] === row && w[1] === col)) cell.classList.add('wall');
+      if (row === level.start[0] && col === level.start[1]) cell.classList.add('player');
+      grid.appendChild(cell);
+    }
+  }
+  updateGridDisplay(level);
+}
+
+function updateGridDisplay(level) {
+  for (let row = 0; row < level.size; row++) {
+    for (let col = 0; col < level.size; col++) {
+      const cell = document.getElementById(`cell${row}_${col}`);
+      cell.classList.remove('player', 'path', 'fail');
+      cell.textContent = '';
+      if (row === level.treasure[0] && col === level.treasure[1]) { cell.textContent = '⭐'; cell.classList.add('treasure'); }
+      if (level.walls.some(w => w[0] === row && w[1] === col)) { cell.textContent = '⬛'; cell.classList.add('wall'); }
+      if (row === gameState.dgPlayerPos[0] && col === gameState.dgPlayerPos[1]) { cell.textContent = '📍'; cell.classList.add('player'); }
+    }
+  }
+  document.getElementById('dgStep').textContent = `已走: ${gameState.dgMoves} 步 | 限步: ${level.maxMoves}`;
+}
+
+function movePlayer(dir) {
+  if (gameState.dgCompleted) return;
+  const level = dirGameLevels[gameState.dgIndex];
+  let [r, c] = gameState.dgPlayerPos;
+  let nr = r, nc = c;
+  if (dir === '北') nr--; else if (dir === '南') nr++; else if (dir === '东') nc++; else if (dir === '西') nc--;
+
+  // Check bounds
+  if (nr < 0 || nr >= level.size || nc < 0 || nc >= level.size) {
+    playSound('wrong');
+    // Flash direction button
+    const btns = document.querySelectorAll('.dir-btn');
+    btns.forEach(b => { if (b.textContent.includes(dir)) { b.classList.add('wrong-dir'); setTimeout(() => b.classList.remove('wrong-dir'), 500); } });
+    return;
+  }
+
+  // Check wall
+  if (level.walls.some(w => w[0] === nr && w[1] === nc)) {
+    playSound('wrong');
+    const btns = document.querySelectorAll('.dir-btn');
+    btns.forEach(b => { if (b.textContent.includes(dir)) { b.classList.add('wrong-dir'); setTimeout(() => b.classList.remove('wrong-dir'), 500); } });
+    return;
+  }
+
+  // Mark previous position as path
+  const prevCell = document.getElementById(`cell${r}_${c}`);
+  if (!(r === level.start[0] && c === level.start[1])) prevCell.classList.add('path');
+
+  gameState.dgPlayerPos = [nr, nc];
+  gameState.dgMoves++;
+  updateGridDisplay(level);
+
+  // Check if reached treasure
+  if (nr === level.treasure[0] && nc === level.treasure[1]) {
+    gameState.dgCompleted = true;
+    if (gameState.dgMoves <= level.maxMoves) {
+      document.getElementById('dgFeedback').textContent = `🎉 恭喜找到宝藏！用了 ${gameState.dgMoves} 步，+${level.points}分`;
+      document.getElementById('dgFeedback').className = 'feedback correct';
+      playSound('correct');
+      gameState.score += level.points;
+      logQuiz(3, gameState.dgIndex, true, 'dg');
+    } else {
+      logQuiz(3, gameState.dgIndex, false, 'dg');
+    }
+    updateScores();
+    document.getElementById('dgNextBtn').style.display = 'inline-block';
+  } else if (gameState.dgMoves >= level.maxMoves) {
+    gameState.dgCompleted = true;
+    document.getElementById('dgFeedback').textContent = '😢 步数用完了！没有到达宝藏…';
+    document.getElementById('dgFeedback').className = 'feedback wrong';
+    playSound('wrong');
+    logQuiz(3, gameState.dgIndex, false, 'dg');
+    document.getElementById('dgNextBtn').style.display = 'inline-block';
+  }
+}
+
+function resetDirGame() {
+  if (gameState.dgCompleted) return;
+  const level = dirGameLevels[gameState.dgIndex];
+  gameState.dgPlayerPos = [...level.start];
+  gameState.dgMoves = 0;
+  document.getElementById('dgFeedback').textContent = '';
+  document.getElementById('dgFeedback').className = 'feedback';
+  // Reset all cells
+  for (let row = 0; row < level.size; row++) {
+    for (let col = 0; col < level.size; col++) {
+      document.getElementById(`cell${row}_${col}`).classList.remove('player', 'path', 'fail');
+      document.getElementById(`cell${row}_${col}`).textContent = '';
+    }
+  }
+  updateGridDisplay(level);
+}
+
+function nextDirGame() { playSound('click'); gameState.dgIndex++; loadDirGame(); }
+
+// ============= ROUND MANAGEMENT =============
+function completeRound() {
+  stopTimer();
+  switchScreen('screenRoundComplete');
+  document.getElementById('roundCompleteTitle').textContent = `${ROUND_EMOJIS[gameState.currentRound]} ${ROUND_NAMES[gameState.currentRound]} 完成！`;
+  document.getElementById('roundCompleteScore').textContent = `当前总分: ${gameState.score}分`;
+  if (gameState.currentRound === 3) {
+    document.getElementById('roundCompleteBtn').textContent = '🏆 查看最终结果';
+  } else {
+    document.getElementById('roundCompleteBtn').textContent = '进入下一关 ▶';
+  }
+}
+
+function nextRound() {
+  playSound('click'); stopTimer(); gameState.currentRound++;
+  if (gameState.currentRound >= 4) { showFinal(); return; }
+  switchScreen(ROUND_SCREENS[gameState.currentRound]); updateScores();
+  if (gameState.currentRound === 1) { gameState.tfIndex = 0; loadTFQuestion(); }
+  else if (gameState.currentRound === 2) { gameState.fbIndex = 0; loadFBQuestion(); }
+  else if (gameState.currentRound === 3) { gameState.dgIndex = 0; loadDirGame(); }
+}
+
+function showFinal() {
+  switchScreen('screenFinal');
+  document.getElementById('finalTotalScore').textContent = gameState.score;
+  spawnConfetti();
+}
+
+// ============= INIT =============
+switchScreen('screenWelcome'); updateScores();
+</script>
+</body>
+</html>
